@@ -30,8 +30,7 @@
       border: 1px solid #ccc;
       font-size: 1em;
     }
-    button {
-      background-color: #4CAF50;
+   -color: #4CAF50;
       color: white;
       cursor: pointer;
       transition: 0.3s;
@@ -57,6 +56,7 @@
   <form id="invitationForm">
     <input type="text" id="prenom" placeholder="Prénom" required>
     <input type="text" id="nom" placeholder="Nom" required>
+    <input type="email" id="email" placeholder="Adresse mail" required>
     <select id="participation" required>
       <option value="">-- Participez-vous ? --</option>
       <option value="oui">Oui</option>
@@ -75,9 +75,10 @@
       e.preventDefault();
       const prenom = document.getElementById("prenom").value.trim();
       const nom = document.getElementById("nom").value.trim();
+      const email = document.getElementById("email").value.trim();
       const participation = document.getElementById("participation").value;
 
-      if(!prenom || !nom || !participation){
+      if(!prenom || !nom || !email || !participation){
         result.textContent = "Veuillez remplir tous les champs !";
         result.style.color = "red";
         result.style.opacity = "1";
@@ -87,7 +88,7 @@
 
       fetch(SHEET_URL, {
         method: "POST",
-        body: new URLSearchParams({ prenom, nom, participation })
+        body: new URLSearchParams({ prenom, nom, email, participation })
       })
       .then(res => res.text())
       .then(data => {
