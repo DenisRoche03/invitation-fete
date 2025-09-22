@@ -5,21 +5,15 @@ const loader = document.getElementById("loader");
 const submitBtn = form.querySelector("button[type='submit']");
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // Remplace par ton URL Google Apps Script
 
-// === Sauvegarde locale des champs ===
+// === Sauvegarde locale ===
 const fields = ["prenom", "nom", "email", "participation"];
 
-// Charger les données sauvegardées + statut du bouton
+// Charger les données sauvegardées
 window.addEventListener("DOMContentLoaded", () => {
-  // Remplir les champs sauvegardés
   fields.forEach(id => {
     const saved = localStorage.getItem(id);
     if(saved) document.getElementById(id).value = saved;
   });
-
-  // Vérifier si déjà envoyé
-  if(localStorage.getItem("formSent") === "true"){
-    lockSubmitButton("✔ Déjà envoyé");
-  }
 });
 
 // Sauvegarder à chaque modification
@@ -47,25 +41,8 @@ function launchConfetti(){
   }
 }
 
-// Fonction pour bloquer définitivement le bouton
-function lockSubmitButton(text="✔ Envoyé"){
-  submitBtn.disabled = true;
-  submitBtn.textContent = text;
-  submitBtn.style.backgroundColor = "#999";
-  submitBtn.style.cursor = "not-allowed";
-}
-
 form.addEventListener("submit", function(e){
   e.preventDefault();
-
-  // Vérifier si déjà envoyé
-  if(localStorage.getItem("formSent") === "true"){
-    result.textContent = "Vous avez déjà envoyé votre réponse ✅";
-    result.style.color = "blue";
-    result.classList.add("show");
-    return;
-  }
-
   const prenom = document.getElementById("prenom").value.trim();
   const nom = document.getElementById("nom").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -114,9 +91,10 @@ form.addEventListener("submit", function(e){
     form.reset();
     fields.forEach(id => localStorage.removeItem(id));
 
-    // Bloquer le bouton + marquer comme envoyé
-    localStorage.setItem("formSent", "true");
-    lockSubmitButton("✔ Envoyé");
+    // Bouton reste désactivé
+    submitBtn.textContent = "✔ Envoyé";
+    submitBtn.style.backgroundColor = "#999"; // gris
+    submitBtn.style.cursor = "not-allowed";
   })
   .catch(err => {
     result.textContent = "Erreur lors de l'envoi. Réessaie plus tard.";
