@@ -1,3 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitation à la fête</title>
+<style>
+body {
+  font-family: Arial;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,#f0f8ff,#dbe9f4);
+  overflow-x:hidden;
+  position:relative;
+}
+form {
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+  width:300px;
+  text-align:center;
+}
+input, select, button {
+  margin:10px 0;
+  padding:10px;
+  width:100%;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:1em;
+}
+button {
+  background-color:#4CAF50;
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover:not(:disabled) { background-color:#45a049; }
+button:disabled {
+  background-color:#999;
+  cursor:not-allowed;
+}
+#result {
+  margin-top:20px;
+  font-size:1.2em;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 0.6s ease;
+}
+#result.show {
+  opacity:1;
+  transform:translateY(0);
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-5px);}
+  50%{transform:translateX(5px);}
+  75%{transform:translateX(-5px);}
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  top: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  border-radius: 50%;
+  animation: fall 3s linear forwards;
+}
+@keyframes fall {
+  to { transform: translateY(100vh) rotate(360deg); opacity:0; }
+}
+#loader {
+  display:none;
+  margin-top:10px;
+  font-size:0.9em;
+  color:#555;
+}
+</style>
+</head>
+<body>
+<h1>Validez votre participation 🎉</h1>
+<form id="invitationForm">
+  <input type="text" id="prenom" placeholder="Prénom" required>
+  <input type="text" id="nom" placeholder="Nom" required>
+  <input type="email" id="email" placeholder="Adresse mail" required>
+  <select id="participation" required>
+    <option value="">-- Participez-vous ? --</option>
+    <option value="oui">Oui</option>
+    <option value="non">Non</option>
+  </select>
+  <button type="submit">Envoyer</button>
+  <div id="loader">⏳ Envoi en cours...</div>
+</form>
+<p id="result"></p>
+
 <script>
 const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
@@ -5,15 +105,19 @@ const loader = document.getElementById("loader");
 const submitBtn = form.querySelector("button[type='submit']");
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // Remplace par ton URL Google Apps Script
 
-// === Sauvegarde locale ===
+// === Sauvegarde locale des champs ===
 const fields = ["prenom", "nom", "email", "participation"];
 
-// Charger les données sauvegardées
+// Charger les données sauvegardées + statut du bouton
 window.addEventListener("DOMContentLoaded", () => {
   fields.forEach(id => {
     const saved = localStorage.getItem(id);
     if(saved) document.getElementById(id).value = saved;
   });
+
+  if(localStorage.getItem("formSent") === "true"){
+    lockSubmitButton("✔ Déjà envoyé");
+  }
 });
 
 // Sauvegarder à chaque modification
@@ -26,7 +130,7 @@ fields.forEach(id => {
 let lastConfetti = 0;
 function launchConfetti(){
   const now = Date.now();
-  if(now - lastConfetti < 1000) return; // max 1 tir/s
+  if(now - lastConfetti < 1000) return; 
   lastConfetti = now;
   
   for(let i=0;i<50;i++){
@@ -41,14 +145,26 @@ function launchConfetti(){
   }
 }
 
+function lockSubmitButton(text="✔ Envoyé"){
+  submitBtn.disabled = true;
+  submitBtn.textContent = text;
+}
+
 form.addEventListener("submit", function(e){
   e.preventDefault();
+
+  if(localStorage.getItem("formSent") === "true"){
+    result.textContent = "Vous avez déjà envoyé votre réponse ✅";
+    result.style.color = "blue";
+    result.classList.add("show");
+    return;
+  }
+
   const prenom = document.getElementById("prenom").value.trim();
   const nom = document.getElementById("nom").value.trim();
   const email = document.getElementById("email").value.trim();
   const participation = document.getElementById("participation").value;
 
-  // Validation email regex
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!emailPattern.test(email)){
     result.textContent = "Adresse mail invalide.";
@@ -86,15 +202,12 @@ form.addEventListener("submit", function(e){
       result.style.color = "orange";
     }
     result.classList.add("show");
-    result.style.animation = "";
 
     form.reset();
     fields.forEach(id => localStorage.removeItem(id));
 
-    // Bouton reste désactivé
-    submitBtn.textContent = "✔ Envoyé";
-    submitBtn.style.backgroundColor = "#999"; // gris
-    submitBtn.style.cursor = "not-allowed";
+    localStorage.setItem("formSent", "true");
+    lockSubmitButton("✔ Envoyé");
   })
   .catch(err => {
     result.textContent = "Erreur lors de l'envoi. Réessaie plus tard.";
@@ -103,14 +216,13 @@ form.addEventListener("submit", function(e){
     result.style.animation = "shake 0.5s";
     console.error(err);
 
-    // Réactiver le bouton si erreur
     submitBtn.disabled = false;
     submitBtn.textContent = "Envoyer";
-    submitBtn.style.backgroundColor = ""; 
-    submitBtn.style.cursor = "pointer";
   })
   .finally(() => {
     loader.style.display = "none"; 
   });
 });
 </script>
+</body>
+</html>
