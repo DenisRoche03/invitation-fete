@@ -8,7 +8,7 @@
 :root{
   --primary:#0074D9;
   --secondary:#00ADEF;
-  --bg:#f0f4f8;
+  --bg:#e6f0fa;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
@@ -21,22 +21,27 @@ body{
 header{
   width:100%; background:var(--primary); color:#fff;
   display:flex; align-items:center; justify-content:center; padding:16px 0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
 header img{ height:50px; }
 
 main{
-  flex:1;
-  display:flex; align-items:center; justify-content:center;
+  flex:1; display:flex; align-items:center; justify-content:center;
   width:100%; padding:24px;
 }
-form{
-  background:#fff; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.15);
-  width:100%; max-width:400px; padding:24px;
+form.boarding-pass{
+  background:#fff; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  width:100%; max-width:420px; padding:32px;
+  position:relative;
+  border-top:6px solid var(--secondary);
 }
-h1{ text-align:center; color:var(--primary); margin-bottom:24px; }
+form h1{
+  text-align:center; color:var(--primary); margin-bottom:24px;
+  font-size:1.5rem; letter-spacing:1px;
+}
 label{ display:block; margin-top:16px; font-weight:600; color:var(--text); }
 input, select, button{
-  width:100%; padding:12px; margin-top:8px;
+  width:100%; padding:14px; margin-top:8px;
   border-radius:6px; border:1px solid #ccc; font-size:1rem;
 }
 input:focus, select:focus{
@@ -44,7 +49,7 @@ input:focus, select:focus{
 }
 button{
   background:var(--btn); color:#fff; border:none; cursor:pointer; font-weight:600; margin-top:24px;
-  transition:0.3s;
+  transition:0.3s; font-size:1.1rem;
 }
 button:hover{ background:var(--btn-hover); }
 button[disabled]{ opacity:.65; cursor:not-allowed; }
@@ -68,7 +73,7 @@ button[disabled]{ opacity:.65; cursor:not-allowed; }
 </header>
 
 <main>
-<form id="invitationForm" novalidate>
+<form id="invitationForm" class="boarding-pass" novalidate>
   <!-- Honeypot anti-bot -->
   <div class="hp-field">
     <label for="hp">Ne pas remplir</label>
@@ -238,5 +243,3 @@ function startCooldown(){
 
 </body>
 </html>
-
-
