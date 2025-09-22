@@ -31,19 +31,6 @@ header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:12px 24px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  color:#fff;
-  position:relative;
-}
-
-/* HEADER */
-header{
-  width:100%;
-  background:var(--primary);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
   padding:12px 24px;       /* padding général */
   padding-left:34px;       /* 24px existant + 10px pour décalage logo */
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
@@ -209,9 +196,7 @@ button[disabled]{
   }
   header{
     padding:12px 16px;
-  }
-  header img{
-    left:10px;
+    padding-left:26px; /* 16px + 10px décalage logo */
   }
 }
 </style>
@@ -219,7 +204,7 @@ button[disabled]{
 <body>
 
 <header>
-  <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
+  <img src="Logo/AirArlette.png" alt="Logo Air Arlette">
   <div class="header-right">
     <div class="lang-flag">
       <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" alt="France">
@@ -405,5 +390,3 @@ function startCooldown(){
 
 </body>
 </html>
-
-
