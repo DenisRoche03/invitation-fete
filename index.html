@@ -8,7 +8,7 @@
 :root{
   --primary:#408ABA;
   --secondary:#00ADEF;
-  --bg:#F5F5F5;
+  --bg:#FFFFFF;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
@@ -125,7 +125,7 @@ label{
   position:relative; 
 }
 
-/* Ligne de séparation avec motif et ombre */
+/* Ligne de séparation pleine */
 .form-left::after{
   content:"";
   position:absolute;
@@ -133,8 +133,7 @@ label{
   right:0;
   width:2px;
   height:100%;
-  background: linear-gradient(to bottom, #D4D4D4 20%, rgba(212,212,212,0) 20%, rgba(212,212,212,0) 40%, #D4D4D4 40%, #D4D4D4 60%, rgba(212,212,212,0) 60%, rgba(212,212,212,0) 80%, #D4D4D4 80%);
-  background-size: 100% 40px;
+  background:#D4D4D4; 
   box-shadow: 1px 0 4px rgba(0,0,0,0.1);
 }
 
@@ -244,9 +243,17 @@ button[disabled]{
     right:0;
     width:100%;
     height:2px;
-    background: linear-gradient(to right, #D4D4D4 20%, rgba(212,212,212,0) 20%, rgba(212,212,212,0) 40%, #D4D4D4 40%, #D4D4D4 60%, rgba(212,212,212,0) 60%, rgba(212,212,212,0) 80%, #D4D4D4 80%);
-    background-size: 40px 100%;
+    background:#D4D4D4;  /* ligne pleine horizontale */
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    margin:16px 0;  /* espace autour de la ligne */
+  }
+
+  /* Ajustement input nombre de personnes */
+  #nb_personnes{
+    margin-top:8px;
+    margin-bottom:16px;
+    padding-right:14px;
+    box-sizing:border-box;
   }
 }
 </style>
@@ -300,16 +307,16 @@ button[disabled]{
 
       <!-- Colonne droite -->
       <div class="form-right">
-        <label>Compagnie</label>
+        <label>✈️ Compagnie</label>
         <p class="readonly-field">Air Arlette</p>
 
-        <label>Numéro de vol</label>
+        <label>🛫 Numéro de vol</label>
         <p class="readonly-field">AA1234</p>
 
-        <label>Destination</label>
+        <label>🏙️ Destination</label>
         <p class="readonly-field">Paris</p>
 
-        <label>Heure de l'embarquement</label>
+        <label>⏰ Heure de l'embarquement</label>
         <p class="readonly-field">14:30</p>
       </div>
     </div>
