@@ -103,24 +103,22 @@ const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
 const loader = document.getElementById("loader");
 const submitBtn = form.querySelector("button[type='submit']");
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // Remplace par ton URL Google Apps Script
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; 
 
-// === Sauvegarde locale des champs ===
 const fields = ["prenom", "nom", "email", "participation"];
 
-// Charger les données sauvegardées + statut du bouton
+// Charger sauvegarde
 window.addEventListener("DOMContentLoaded", () => {
   fields.forEach(id => {
     const saved = localStorage.getItem(id);
     if(saved) document.getElementById(id).value = saved;
   });
-
   if(localStorage.getItem("formSent") === "true"){
     lockSubmitButton("✔ Déjà envoyé");
   }
 });
 
-// Sauvegarder à chaque modification
+// Sauvegarder
 fields.forEach(id => {
   document.getElementById(id).addEventListener("input", e => {
     localStorage.setItem(id, e.target.value);
@@ -130,7 +128,7 @@ fields.forEach(id => {
 let lastConfetti = 0;
 function launchConfetti(){
   const now = Date.now();
-  if(now - lastConfetti < 1000) return; 
+  if(now - lastConfetti < 1000) return;
   lastConfetti = now;
   
   for(let i=0;i<50;i++){
@@ -150,15 +148,30 @@ function lockSubmitButton(text="✔ Envoyé"){
   submitBtn.textContent = text;
 }
 
+// === ANTISPAM : bloquer plusieurs clics ===
+let spamBlock = false;
+
 form.addEventListener("submit", function(e){
   e.preventDefault();
 
+  // Déjà envoyé
   if(localStorage.getItem("formSent") === "true"){
     result.textContent = "Vous avez déjà envoyé votre réponse ✅";
     result.style.color = "blue";
     result.classList.add("show");
     return;
   }
+
+  // Bloquer spam
+  if(spamBlock){
+    result.textContent = "Merci de patienter avant de réessayer ⏳";
+    result.style.color = "red";
+    result.classList.add("show");
+    return;
+  }
+  spamBlock = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Envoi...";
 
   const prenom = document.getElementById("prenom").value.trim();
   const nom = document.getElementById("nom").value.trim();
@@ -171,6 +184,7 @@ form.addEventListener("submit", function(e){
     result.style.color = "red";
     result.classList.add("show");
     result.style.animation = "shake 0.5s";
+    resetSpamBlock();
     return;
   }
 
@@ -179,12 +193,11 @@ form.addEventListener("submit", function(e){
     result.style.color = "red";
     result.classList.add("show");
     result.style.animation = "shake 0.5s";
+    resetSpamBlock();
     return;
   }
 
   loader.style.display = "block"; 
-  submitBtn.disabled = true;      
-  submitBtn.textContent = "Envoi..."; 
   result.classList.remove("show");
 
   fetch(SHEET_URL, {
@@ -216,13 +229,23 @@ form.addEventListener("submit", function(e){
     result.style.animation = "shake 0.5s";
     console.error(err);
 
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Envoyer";
+    // Réactivation après 5s en cas d'erreur
+    resetSpamBlock();
   })
   .finally(() => {
     loader.style.display = "none"; 
   });
 });
+
+// Fonction pour réactiver si erreur
+function resetSpamBlock(){
+  setTimeout(() => {
+    spamBlock = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Envoyer";
+  }, 5000); // délai 5s
+}
 </script>
 </body>
 </html>
+
