@@ -32,7 +32,7 @@ header{
   align-items:center;
   justify-content:space-between;
   padding:12px 24px;
-  padding-left:34px; /* décalage logo */
+  padding-left:34px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
   color:#fff;
 }
@@ -85,7 +85,7 @@ form.boarding-pass{
   border-radius:16px; 
   box-shadow:0 8px 20px rgba(0,0,0,0.2);
   width:100%; 
-  max-width:420px; 
+  max-width:800px; 
   padding:32px;
   position:relative;
   border-top:6px solid var(--secondary);
@@ -106,16 +106,36 @@ label{
   color:var(--text); 
 }
 
-/* INPUTS, SELECT, BUTTON avec margin-right */
+/* Flex deux colonnes avec séparation */
+.form-columns{
+  display:flex;
+  gap:16px; 
+  flex-wrap:wrap;
+}
+
+.form-left, .form-right{
+  flex:1 1 250px; 
+  display:flex;
+  flex-direction:column;
+}
+
+.form-left{
+  padding-right:16px;
+  border-right:1px solid #D4D4D4;
+}
+
+.form-right{
+  padding-left:16px;
+}
+
 input, select, button{
-  width:calc(100% - 8px);  /* largeur totale moins margin-right */
+  width:100%; 
   padding:14px; 
   margin-top:8px;
-  margin-right:8px;        /* marge à droite */
   border-radius:6px; 
   border:1px solid #ccc; 
   font-size:1rem;
-  box-sizing:border-box;    /* inclut padding et border dans width */
+  box-sizing:border-box;
 }
 
 input:focus, select:focus{
@@ -190,23 +210,19 @@ button[disabled]{
 }
 
 /* RESPONSIVE */
-@media(max-width:480px){
-  form.boarding-pass{
-    padding:24px;
+@media(max-width:640px){
+  .form-columns{
+    flex-direction:column; 
+    gap:8px;
   }
-  form h1{
-    font-size:1.3rem;
+  .form-left{
+    border-right:none;
+    padding-right:0;
   }
-  header{
-    padding:12px 16px;
-    padding-left:26px; /* décalage logo */
-  }
-  input, select, button{
-    width:100%;           /* sur mobile, on enlève la marge-right pour remplir tout l'espace */
-    margin-right:0;
+  .form-right{
+    padding-left:0;
   }
 }
-
 </style>
 </head>
 <body>
@@ -225,35 +241,58 @@ button[disabled]{
 </header>
 
 <main>
-<form id="invitationForm" class="boarding-pass" novalidate>
-  <div class="hp-field">
-    <label for="hp">Ne pas remplir</label>
-    <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
-  </div>
+  <form id="invitationForm" class="boarding-pass" novalidate>
+    <div class="hp-field">
+      <label for="hp">Ne pas remplir</label>
+      <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
+    </div>
 
-  <h1>Enregistrement à la fête</h1>
+    <h1>Enregistrement à la fête</h1>
 
-  <label for="prenom">Prénom</label>
-  <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
+    <div class="form-columns">
+      <!-- Colonne gauche -->
+      <div class="form-left">
+        <label for="prenom">Prénom</label>
+        <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
 
-  <label for="nom">Nom</label>
-  <input type="text" id="nom" name="nom" placeholder="Nom" required />
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" name="nom" placeholder="Nom" required />
 
-  <label for="email">Adresse mail</label>
-  <input type="email" id="email" name="email" placeholder="Adresse mail" required />
+        <label for="email">Adresse mail</label>
+        <input type="email" id="email" name="email" placeholder="Adresse mail" required />
 
-  <label for="participation">Participez-vous ?</label>
-  <select id="participation" name="participation" required>
-    <option value="">-- Choisir --</option>
-    <option value="oui">Oui</option>
-    <option value="non">Non</option>
-  </select>
+        <label for="participation">Participez-vous ?</label>
+        <select id="participation" name="participation" required>
+          <option value="">-- Choisir --</option>
+          <option value="oui">Oui</option>
+          <option value="non">Non</option>
+        </select>
 
-  <button type="submit" id="submitBtn"><span>Envoyer</span></button>
-  <div id="loader" style="display:none; text-align:center; margin-top:8px;">
-    <span class="spinner"></span> Envoi…
-  </div>
-</form>
+        <label for="nb_personnes">Nombre de personnes</label>
+        <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" required />
+      </div>
+
+      <!-- Colonne droite -->
+      <div class="form-right">
+        <label for="compagnie">Compagnie</label>
+        <input type="text" id="compagnie" name="compagnie" value="Air Arlette" readonly />
+
+        <label for="numero_vol">Numéro de vol</label>
+        <input type="text" id="numero_vol" name="numero_vol" value="AA1234" readonly />
+
+        <label for="destination">Destination</label>
+        <input type="text" id="destination" name="destination" value="Paris" readonly />
+
+        <label for="heure">Heure de l'embarquement</label>
+        <input type="text" id="heure" name="heure" value="14:30" readonly />
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn"><span>Envoyer</span></button>
+    <div id="loader" style="display:none; text-align:center; margin-top:8px;">
+      <span class="spinner"></span> Envoi…
+    </div>
+  </form>
 </main>
 
 <p id="result" role="status" aria-live="polite"></p>
@@ -268,7 +307,7 @@ const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
 const loader = document.getElementById("loader");
 const submitBtn = document.getElementById("submitBtn");
-const fields = ["prenom","nom","email","participation"];
+const fields = ["prenom","nom","email","participation","nb_personnes"];
 
 fields.forEach(id=>{
   const el=document.getElementById(id);
@@ -331,12 +370,13 @@ form.addEventListener("submit", async e=>{
   const nom=document.getElementById("nom").value.trim();
   const email=document.getElementById("email").value.trim();
   const participation=document.getElementById("participation").value;
+  const nb_personnes=document.getElementById("nb_personnes").value;
   const hp=(document.getElementById("hp")?.value||"").trim();
 
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     showMessage("Adresse mail invalide.","err"); return;
   }
-  if(!prenom||!nom||!email||!participation){
+  if(!prenom||!nom||!email||!participation||!nb_personnes){
     showMessage("Veuillez remplir tous les champs !","err"); return;
   }
   if(hp){ showMessage("Merci !","ok"); return; }
@@ -398,9 +438,3 @@ function startCooldown(){
 
 </body>
 </html>
-
-
-
-
-
-
