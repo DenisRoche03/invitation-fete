@@ -4,303 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enregistrement - Air Arlette</title>
-
-<!-- Material Icons Google -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
 <style>
 :root{
   --primary:#408ABA;
   --secondary:#00ADEF;
-  --bg:#F5F5F5;
+  --bg:#FFFFFF;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
 }
-
 body{
-  margin:0; 
-  font-family:Arial, sans-serif;
+  margin:0; font-family:Arial,sans-serif;
   background:var(--bg);
-  display:flex; 
-  flex-direction:column; 
-  align-items:center; 
-  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; min-height:100vh;
 }
-
-/* HEADER */
 header{
-  width:100%;
-  background:var(--primary);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px 24px;
-  padding-left:34px;
+  width:100%; background:var(--primary);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 24px; padding-left:34px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
   color:#fff;
 }
-
-header img{
-  height:50px;
-  margin-left:10px;
-  object-fit:contain;
-}
-
-.header-right{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  font-size:0.95rem;
-  font-weight:600;
-}
-
-.lang-flag{
-  display:flex; 
-  align-items:center; 
-  gap:4px;
-}
-
-.lang-flag img{
-  height:16px;
-  width:24px;
-  object-fit:cover;
-  border-radius:2px;
-}
-
-.icon-conn{
-  display:flex; 
-  align-items:center; 
-  gap:4px;
-}
-
-.icon-conn .material-icons{
-  vertical-align: middle;
-  margin-right:4px;
-  font-size:20px;
-}
-
-/* MAIN FORM */
-main{
-  flex:1; 
-  display:flex; 
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  padding:24px 16px;
-  min-height: calc(100vh - 80px);
-}
-
+header img{height:50px;margin-left:10px;object-fit:contain;}
+.header-right{display:flex;align-items:center;gap:16px;font-size:0.95rem;font-weight:600;}
+.lang-flag{display:flex;align-items:center;gap:4px;}
+.lang-flag img{height:16px;width:24px;object-fit:cover;border-radius:2px;}
+.icon-conn{display:flex;align-items:center;gap:4px;}
+.icon-conn .material-icons{vertical-align: middle;margin-right:4px;font-size:20px;}
+main{flex:1; display:flex; align-items:center; justify-content:center;width:100%;padding:24px 16px; min-height: calc(100vh - 80px);}
 form.boarding-pass{
-  background:#fff; 
-  border-radius:16px; 
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  width:100%; 
-  max-width:800px; 
-  padding:32px;
-  position:relative;
+  background:#fff;border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  width:100%; max-width:800px; padding:32px; position:relative;
   border-top:6px solid var(--secondary);
 }
-
-form h1{
-  text-align:center; 
-  color:var(--primary); 
-  margin-bottom:24px;
-  font-size:1.5rem; 
-  letter-spacing:1px;
-}
-
-label{ 
-  display:block; 
-  margin-top:16px; 
-  font-weight:600; 
-  color:var(--text); 
-}
-
-/* Flex deux colonnes avec séparation */
-.form-columns{
-  display:flex;
-  gap:16px; 
-  flex-wrap:wrap;
-  position:relative;
-}
-
-.form-left, .form-right{
-  flex:1 1 250px; 
-  display:flex;
-  flex-direction:column;
-}
-
-.form-left{
-  padding-right:16px;
-  position:relative; 
-}
-
-/* Ligne de séparation pleine */
-.form-left::after{
-  content:"";
-  position:absolute;
-  top:0;
-  right:0;
-  width:2px;
-  height:100%;
-  background:#D4D4D4; 
-  box-shadow: 1px 0 4px rgba(0,0,0,0.1);
-}
-
-.form-right{
-  padding-left:16px;
-}
-
-/* Inputs et boutons */
-input, select, button{
-  width:100%; 
-  padding:14px; 
-  margin-top:8px;
-  border-radius:6px; 
-  border:1px solid #ccc; 
-  font-size:1rem;
-  box-sizing:border-box;
-}
-
-input:focus, select:focus{
-  outline:none; 
-  border-color:var(--primary); 
-  box-shadow:0 0 5px rgba(0,116,217,0.5);
-}
-
-button{
-  background:var(--btn); 
-  color:#fff; 
-  border:none; 
-  cursor:pointer; 
-  font-weight:600; 
-  margin-top:24px;
-  transition:0.3s; 
-  font-size:1.1rem;
-}
-
-button:hover{ 
-  background:var(--btn-hover); 
-}
-
-button[disabled]{ 
-  opacity:.65; 
-  cursor:not-allowed; 
-}
-
-#result{ 
-  margin-top:16px; 
-  text-align:center; 
-  font-weight:600; 
-}
-
-.confetti{
-  position:absolute; 
-  top:-10px; 
-  width:8px; 
-  height:8px; 
-  border-radius:50%;
-  opacity:.85; 
-  pointer-events:none; 
-  will-change: transform, opacity;
-  transform: translate3d(0,0,0);
-  animation:fall linear forwards;
-}
-
-@keyframes fall{ 
-  to{ transform: translate3d(var(--dx,0),100vh,0) rotate(360deg); opacity:0; } 
-}
-
-.hp-field{ 
-  position:absolute; 
-  left:-10000px; 
-  top:auto; 
-  width:1px; 
-  height:1px; 
-  overflow:hidden; 
-}
-
-.spinner{ 
-  width:16px; 
-  height:16px; 
-  border:2px solid currentColor; 
-  border-right-color:transparent; 
-  border-radius:50%; 
-  animation:spin .7s linear infinite; 
-}
-
-/* Labels de droite en style "carte" */
-.readonly-field{
-  padding:14px;
-  border-radius:8px;
-  background:#f9f9f9;
-  color:#333;
-  margin-top:8px;
-  font-size:1rem;
-  box-shadow:0 2px 6px rgba(0,0,0,0.08);
-}
-
-/* Material Icons pour labels droite */
-.form-right label .material-icons{
-  vertical-align: middle;
-  margin-right:6px;
-  font-size:20px;
-  color:var(--primary);
-}
-
-/* Inputs avec Material Icons */
-.input-icon{
-  position: relative;
-  margin-top:16px;
-}
-
-.input-icon input{
-  padding-left:36px; /* espace pour icône */
-}
-
-.input-icon .material-icons{
-  position: absolute;
-  left:10px;
-  top:50%;
-  transform: translateY(-50%);
-  color:#333;
-  font-size:20px;
-}
-
-/* RESPONSIVE */
+form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;letter-spacing:1px;}
+label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
+.form-columns{display:flex;gap:16px;flex-wrap:wrap;position:relative;}
+.form-left,.form-right{flex:1 1 250px; display:flex; flex-direction:column;}
+.form-left{padding-right:16px;position:relative;}
+.form-left::after{content:"";position:absolute;top:0;right:0;width:2px;height:100%;background:#D4D4D4;box-shadow: 1px 0 4px rgba(0,0,0,0.1);}
+.form-right{padding-left:16px;}
+input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 5px rgba(0,116,217,0.5);}
+button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:600;margin-top:24px;transition:0.3s;font-size:1.1rem;}
+button:hover{background:var(--btn-hover);}
+button[disabled]{opacity:.65;cursor:not-allowed;}
+#result{margin-top:16px;text-align:center;font-weight:600;}
+.confetti{position:absolute;top:-10px;width:8px;height:8px;border-radius:50%;opacity:.85;pointer-events:none;will-change: transform, opacity;transform: translate3d(0,0,0);animation:fall linear forwards;}
+@keyframes fall{to{ transform: translate3d(var(--dx,0),100vh,0) rotate(360deg); opacity:0; }}
+.hp-field{position:absolute; left:-10000px; top:auto;width:1px;height:1px;overflow:hidden;}
+.spinner{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{ to{ transform:rotate(360deg) } }
+.readonly-field{padding:14px;border-radius:8px;background:#f9f9f9;color:#333;margin-top:8px;font-size:1rem;box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+.form-right label .material-icons{vertical-align: middle;margin-right:6px;font-size:20px;color:var(--primary);}
+.input-icon{position: relative;margin-top:16px;}
+.input-icon input{padding-left:36px;}
+.input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
 @media(max-width:640px){
-  .form-columns{
-    flex-direction:column; 
-    gap:8px;
-  }
-  .form-left::after{
-    top:auto;
-    bottom:0;
-    left:0;
-    right:0;
-    width:100%;
-    height:2px;
-    background:#D4D4D4;
-    box-shadow:0 1px 4px rgba(0,0,0,0.1);
-    margin:16px 0;
-  }
-
-  #nb_personnes{
-    margin-top:8px;
-    margin-bottom:16px;
-    padding-right:14px;
-    box-sizing:border-box;
-  }
-
-  main{
-    padding:24px 16px;
-  }
-
-  form.boarding-pass{
-    max-width:100%;
-    padding:24px;
-  }
+  .form-columns{flex-direction:column;gap:8px;}
+  .form-left::after{top:auto;bottom:0;left:0;right:0;width:100%;height:2px;background:#D4D4D4;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin:16px 0;}
+  #nb_personnes{margin-top:8px;margin-bottom:16px;padding-right:14px;box-sizing:border-box;}
+  main{padding:24px 16px;}
+  form.boarding-pass{max-width:100%;padding:24px;}
 }
 </style>
 </head>
@@ -320,73 +87,61 @@ button[disabled]{
 </header>
 
 <main>
-  <form id="invitationForm" class="boarding-pass" novalidate>
-    <div class="hp-field">
-      <label for="hp">Ne pas remplir</label>
-      <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
-    </div>
+<form id="invitationForm" class="boarding-pass" novalidate>
+  <div class="hp-field">
+    <label for="hp">Ne pas remplir</label>
+    <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
+  </div>
+  <h1>Enregistrement à la fête</h1>
 
-    <h1>Enregistrement à la fête</h1>
-
-    <div class="form-columns">
-      <!-- Colonne gauche -->
-      <div class="form-left">
-        <div class="input-icon">
-          <span class="material-icons">person</span>
-          <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
-        </div>
-
-        <div class="input-icon">
-          <span class="material-icons">badge</span>
-          <input type="text" id="nom" name="nom" placeholder="Nom" required />
-        </div>
-
-        <div class="input-icon">
-          <span class="material-icons">email</span>
-          <input type="email" id="email" name="email" placeholder="Adresse mail" required />
-        </div>
-
-        <label for="participation">Participez-vous ?</label>
-        <select id="participation" name="participation" required>
-          <option value="">-- Choisir --</option>
-          <option value="oui">Oui</option>
-          <option value="non">Non</option>
-        </select>
-
-        <div class="input-icon">
-          <span class="material-icons">groups</span>
-          <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" required />
-        </div>
+  <div class="form-columns">
+    <div class="form-left">
+      <div class="input-icon">
+        <span class="material-icons">person</span>
+        <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
       </div>
-
-      <!-- Colonne droite -->
-      <div class="form-right">
-        <label><span class="material-icons">flight</span> Compagnie</label>
-        <p class="readonly-field">Air Arlette</p>
-
-        <label><span class="material-icons">confirmation_number</span> Numéro de vol</label>
-        <p class="readonly-field">AA1234</p>
-
-        <label><span class="material-icons">location_city</span> Destination</label>
-        <p class="readonly-field">Paris</p>
-
-        <label><span class="material-icons">schedule</span> Heure de l'embarquement</label>
-        <p class="readonly-field">14:30</p>
+      <div class="input-icon">
+        <span class="material-icons">badge</span>
+        <input type="text" id="nom" name="nom" placeholder="Nom" required />
+      </div>
+      <div class="input-icon">
+        <span class="material-icons">email</span>
+        <input type="email" id="email" name="email" placeholder="Adresse mail" required />
+      </div>
+      <label for="participation">Participez-vous ?</label>
+      <select id="participation" name="participation" required>
+        <option value="">-- Choisir --</option>
+        <option value="oui">Oui</option>
+        <option value="non">Non</option>
+      </select>
+      <div class="input-icon">
+        <span class="material-icons">groups</span>
+        <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" required />
       </div>
     </div>
 
-    <button type="submit" id="submitBtn"><span>Envoyer</span></button>
-    <div id="loader" style="display:none; text-align:center; margin-top:8px;">
-      <span class="spinner"></span> Envoi…
+    <div class="form-right">
+      <label><span class="material-icons">flight</span> Compagnie</label>
+      <p class="readonly-field">Air Arlette</p>
+      <label><span class="material-icons">confirmation_number</span> Numéro de vol</label>
+      <p class="readonly-field">AA1234</p>
+      <label><span class="material-icons">location_city</span> Destination</label>
+      <p class="readonly-field">Paris</p>
+      <label><span class="material-icons">schedule</span> Heure de l'embarquement</label>
+      <p class="readonly-field">14:30</p>
     </div>
-  </form>
+  </div>
+
+  <button type="submit" id="submitBtn"><span>Envoyer</span></button>
+  <div id="loader" style="display:none; text-align:center; margin-top:8px;">
+    <span class="spinner"></span> Envoi…
+  </div>
+</form>
 </main>
-
 <p id="result" role="status" aria-live="polite"></p>
 
 <script>
-// ==== CONFIG ====
-const SHEET_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // <-- à remplacer
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // <-- Remplace par ton URL Web App
 const LOCK_AFTER_SUCCESS = true;
 const ANTISPAM_DELAY = 30;
 
@@ -460,12 +215,6 @@ form.addEventListener("submit", async e=>{
   const nb_personnes=document.getElementById("nb_personnes").value;
   const hp=(document.getElementById("hp")?.value||"").trim();
 
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    showMessage("Adresse mail invalide.","err"); return;
-  }
-  if(!prenom||!nom||!email||!participation||!nb_personnes){
-    showMessage("Veuillez remplir tous les champs !","err"); return;
-  }
   if(hp){ showMessage("Merci !","ok"); return; }
 
   isSubmitting=true; setLoading(true); result.classList.remove("show");
@@ -528,4 +277,3 @@ function startCooldown(){
 </script>
 </body>
 </html>
-
