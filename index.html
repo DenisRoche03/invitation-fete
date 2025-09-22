@@ -1,251 +1,330 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
 <title>Invitation à la fête</title>
 <style>
-body {
-  font-family: Arial;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  background:linear-gradient(135deg,#f0f8ff,#dbe9f4);
-  overflow-x:hidden;
-  position:relative;
-}
-form {
-  background:white;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 0 15px rgba(0,0,0,0.1);
-  width:300px;
-  text-align:center;
-}
-input, select, button {
-  margin:10px 0;
-  padding:10px;
-  width:100%;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:1em;
-}
-button {
-  background-color:#4CAF50;
-  color:white;
-  cursor:pointer;
-  transition:0.3s;
-}
-button:hover:not(:disabled) { background-color:#45a049; }
-button:disabled {
-  background-color:#999;
-  cursor:not-allowed;
-}
-#result {
-  margin-top:20px;
-  font-size:1.2em;
-  opacity:0;
-  transform:translateY(20px);
-  transition:all 0.6s ease;
-}
-#result.show {
-  opacity:1;
-  transform:translateY(0);
-}
-@keyframes shake {
-  0%,100%{transform:translateX(0);}
-  25%{transform:translateX(-5px);}
-  50%{transform:translateX(5px);}
-  75%{transform:translateX(-5px);}
-}
-.confetti {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: red;
-  top: 0;
-  pointer-events: none;
-  opacity: 0.7;
-  border-radius: 50%;
-  animation: fall 3s linear forwards;
-}
-@keyframes fall {
-  to { transform: translateY(100vh) rotate(360deg); opacity:0; }
-}
-#loader {
-  display:none;
-  margin-top:10px;
-  font-size:0.9em;
-  color:#555;
-}
+  :root{
+    --bg1:#f0f8ff; --bg2:#dbe9f4;
+    --ok:#2e7d32; --warn:#ef6c00; --err:#d32f2f;
+    --btn:#4CAF50; --btnH:#45a049; --border:#ccc; --muted:#666;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; margin:0; padding:16px;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+    overflow-x:hidden; position:relative;
+  }
+  h1{ margin: 0 0 16px; }
+  form{
+    background:#fff; padding:24px; border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,.1);
+    width: min(420px, 100%); text-align:center; position:relative;
+  }
+  label{ display:block; text-align:left; font-weight:600; margin-top:10px; }
+  input, select, button{
+    margin:8px 0 0; padding:10px; width:100%;
+    border-radius:8px; border:1px solid var(--border); font-size:1rem;
+  }
+  input::placeholder{ color:#9aa4af; }
+  button{
+    background-color:var(--btn); color:#fff; cursor:pointer; transition:.2s;
+    display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  }
+  button:hover{ background-color:var(--btnH); }
+  button[disabled]{ opacity:.65; cursor:not-allowed; }
+  .spinner{ width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+
+  #result{
+    margin-top:16px; font-size:1.05rem; opacity:0; transform:translateY(6px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  #result.show{ opacity:1; transform:translateY(0); }
+  .ok{ color:var(--ok); }
+  .warn{ color:var(--warn); }
+  .err{ color:var(--err); }
+  @keyframes shake{
+    10%,90%{transform:translateX(-1px)}
+    20%,80%{transform:translateX(2px)}
+    30%,50%,70%{transform:translateX(-4px)}
+    40%,60%{transform:translateX(4px)}
+  }
+
+  /* Confetti */
+  .confetti{
+    position:absolute; top:-10px; width:8px; height:8px; border-radius:50%;
+    opacity:.85; pointer-events:none; will-change: transform, opacity;
+    transform: translate3d(0,0,0);
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to { transform: translate3d(var(--dx,0), 100vh, 0) rotate(360deg); opacity:0; }
+  }
+
+  /* Honeypot : caché mais dans le DOM */
+  .hp-field{
+    position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;
+  }
+
+  /* Loader sous le bouton */
+  #loader{ display:none; margin-top:8px; color:var(--muted); }
 </style>
 </head>
 <body>
+
 <h1>Validez votre participation 🎉</h1>
-<form id="invitationForm">
-  <input type="text" id="prenom" placeholder="Prénom" required>
-  <input type="text" id="nom" placeholder="Nom" required>
-  <input type="email" id="email" placeholder="Adresse mail" required>
-  <select id="participation" required>
+
+<form id="invitationForm" novalidate>
+  <!-- Honeypot anti-bot -->
+  <div class="hp-field" aria-hidden="true">
+    <label for="hp">Ne pas remplir</label>
+    <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <label for="prenom">Prénom</label>
+  <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
+
+  <label for="nom">Nom</label>
+  <input type="text" id="nom" name="nom" placeholder="Nom" required />
+
+  <label for="email">Adresse mail</label>
+  <input type="email" id="email" name="email" placeholder="Adresse mail" required />
+
+  <label for="participation">Participez-vous ?</label>
+  <select id="participation" name="participation" required>
     <option value="">-- Participez-vous ? --</option>
     <option value="oui">Oui</option>
     <option value="non">Non</option>
   </select>
-  <button type="submit">Envoyer</button>
-  <div id="loader">⏳ Envoi en cours...</div>
+
+  <button id="submitBtn" type="submit">
+    <span>Envoyer</span>
+  </button>
+
+  <!-- Petit loader sous le bouton -->
+  <div id="loader" aria-hidden="true">
+    <span class="spinner" style="display:inline-block;border-color:#999;border-right-color:transparent;"></span>
+    <span style="margin-left:6px;">Envoi…</span>
+  </div>
 </form>
-<p id="result"></p>
+
+<p id="result" role="status" aria-live="polite"></p>
 
 <script>
+/** ========= CONFIG ========= **/
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // ⚠️ Remplacer par ton URL /exec
+const LOCK_AFTER_SUCCESS = true;   // true = bouton reste grisé après succès
+const ENABLE_ICS = false;          // true = proposer "Ajouter au calendrier"
+const ICS_EVENT = {
+  title: "La Fête de l'Équipe",
+  // Format local 'YYYYMMDDTHHMMSS' (sans Z) ou UTC avec Z
+  start: "20251215T180000",
+  end:   "20251215T230000",
+  location: "Salle Polyvalente, Amanzé",
+  description: "Soirée conviviale 🎉"
+};
+
+/** ======== Sélection éléments ======== **/
 const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
 const loader = document.getElementById("loader");
-const submitBtn = form.querySelector("button[type='submit']");
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; 
-
+const submitBtn = document.getElementById("submitBtn");
 const fields = ["prenom", "nom", "email", "participation"];
 
-// Charger sauvegarde
+/** ====== Sauvegarde locale ====== **/
 window.addEventListener("DOMContentLoaded", () => {
   fields.forEach(id => {
+    const el = document.getElementById(id);
     const saved = localStorage.getItem(id);
-    if(saved) document.getElementById(id).value = saved;
+    if (el && saved !== null) el.value = saved;
   });
-  if(localStorage.getItem("formSent") === "true"){
-    lockSubmitButton("✔ Déjà envoyé");
-  }
 });
-
-// Sauvegarder
 fields.forEach(id => {
-  document.getElementById(id).addEventListener("input", e => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", e => {
     localStorage.setItem(id, e.target.value);
   });
 });
 
+/** ====== Confetti ====== **/
 let lastConfetti = 0;
-function launchConfetti(){
+function launchConfetti(count=40){
   const now = Date.now();
-  if(now - lastConfetti < 1000) return;
+  if (now - lastConfetti < 1000) return; // max 1 tir/s
   lastConfetti = now;
-  
-  for(let i=0;i<50;i++){
-    const confetti = document.createElement("div");
-    confetti.classList.add("confetti");
-    confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-    confetti.style.left = Math.random()*100 + "vw";
-    confetti.style.animationDuration = (2 + Math.random()*2) + "s";
-    confetti.style.width = confetti.style.height = (5 + Math.random()*10) + "px";
-    document.body.appendChild(confetti);
-    setTimeout(()=>{ confetti.remove(); }, 3000);
+
+  for(let i=0;i<count;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    const hue = Math.floor(Math.random()*360);
+    const size = 6 + Math.random()*10;
+    const left = Math.random()*100; // vw
+    const dx = (Math.random()*200 - 100) + "px"; // drift horizontal
+    const dur = (2 + Math.random()*2).toFixed(2) + "s";
+
+    c.style.backgroundColor = `hsl(${hue} 90% 55%)`;
+    c.style.left = left + "vw";
+    c.style.width = c.style.height = size + "px";
+    c.style.setProperty("--dx", dx);
+    c.style.animationDuration = dur;
+    document.body.appendChild(c);
+    setTimeout(()=> c.remove(), parseFloat(dur)*1000);
   }
 }
 
-function lockSubmitButton(text="✔ Envoyé"){
-  submitBtn.disabled = true;
-  submitBtn.textContent = text;
+/** ====== UI Helpers ====== **/
+function showMessage(msg, cls){
+  result.textContent = msg;
+  result.classList.remove("ok","warn","err","show");
+  if (cls) result.classList.add(cls);
+  // Rejouer l'animation shake si erreur
+  result.style.animation = "none";
+  // force reflow
+  void result.offsetHeight;
+  if (cls === "err") result.style.animation = "shake .35s";
+  result.classList.add("show");
 }
 
-// === ANTISPAM : bloquer plusieurs clics ===
-let spamBlock = false;
+function setLoading(loading){
+  if (loading){
+    loader.style.display = "block";
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner" aria-hidden="true" style="border:2px solid #fff;border-right-color:transparent"></span><span>Envoi…</span>`;
+  } else {
+    loader.style.display = "none";
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<span>Envoyer</span>`;
+  }
+}
 
-form.addEventListener("submit", function(e){
+/** ====== ICS ====== **/
+function buildICS({title, start, end, location='', description=''}){
+  const uid = (crypto.randomUUID?.() || (Date.now() + "@local"));
+  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+  const esc = (s)=> String(s).replace(/([,;])/g,'\\$1').replace(/\n/g,'\\n');
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RSVP//FR//','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${now}`,
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
+    `SUMMARY:${esc(title)}`,
+    `LOCATION:${esc(location)}`,
+    `DESCRIPTION:${esc(description)}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+  return URL.createObjectURL(blob);
+}
+
+/** ====== Submit ====== **/
+let isSubmitting = false;
+
+form.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  if (isSubmitting) return;
 
-  // Déjà envoyé
-  if(localStorage.getItem("formSent") === "true"){
-    result.textContent = "Vous avez déjà envoyé votre réponse ✅";
-    result.style.color = "blue";
-    result.classList.add("show");
-    return;
-  }
-
-  // Bloquer spam
-  if(spamBlock){
-    result.textContent = "Merci de patienter avant de réessayer ⏳";
-    result.style.color = "red";
-    result.classList.add("show");
-    return;
-  }
-  spamBlock = true;
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Envoi...";
+  // Validation native HTML (required, type=email)
+  if (!form.reportValidity()) return;
 
   const prenom = document.getElementById("prenom").value.trim();
   const nom = document.getElementById("nom").value.trim();
   const email = document.getElementById("email").value.trim();
   const participation = document.getElementById("participation").value;
+  const hp = (document.getElementById("hp")?.value || "").trim();
 
+  // Regex email en complément (message personnalisé)
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailPattern.test(email)){
-    result.textContent = "Adresse mail invalide.";
-    result.style.color = "red";
-    result.classList.add("show");
-    result.style.animation = "shake 0.5s";
-    resetSpamBlock();
+  if (!emailPattern.test(email)){
+    showMessage("Adresse mail invalide.", "err");
     return;
   }
 
-  if(!prenom || !nom || !email || !participation){
-    result.textContent = "Veuillez remplir tous les champs !";
-    result.style.color = "red";
-    result.classList.add("show");
-    result.style.animation = "shake 0.5s";
-    resetSpamBlock();
+  if (!prenom || !nom || !email || !participation){
+    showMessage("Veuillez remplir tous les champs !", "err");
     return;
   }
 
-  loader.style.display = "block"; 
+  // Honeypot rempli => on répond OK sans envoyer (bloque bots basiques)
+  if (hp){
+    showMessage("Merci !", "ok");
+    return;
+  }
+
+  isSubmitting = true;
+  setLoading(true);
   result.classList.remove("show");
 
-  fetch(SHEET_URL, {
-    method: "POST",
-    body: new URLSearchParams({ prenom, nom, email, participation })
-  })
-  .then(res => res.text())
-  .then(data => {
-    if(participation === "oui"){
-      result.textContent = `Merci ${prenom} ${nom}, on se réjouit de ta présence ! 🎊`;
-      result.style.color = "green";
-      launchConfetti();
+  // Prépare les données (prend tous les champs du formulaire)
+  const params = new URLSearchParams(new FormData(form));
+
+  // Timeout via AbortController
+  const ctrl = new AbortController();
+  const TIMEOUT_MS = 12000;
+  const t = setTimeout(()=> ctrl.abort("timeout"), TIMEOUT_MS);
+
+  try{
+    const res = await fetch(SHEET_URL, {
+      method: "POST",
+      body: params,
+      signal: ctrl.signal
+    });
+    clearTimeout(t);
+    const text = await res.text();
+
+    if (res.ok && /^OK\b/i.test(text)){
+      if (participation === "oui"){
+        showMessage(`Merci ${prenom} ${nom}, on se réjouit de ta présence ! 🎊`, "ok");
+        launchConfetti();
+
+        if (ENABLE_ICS){
+          const url = buildICS(ICS_EVENT);
+          const link = document.createElement('a');
+          link.href = url; link.download = 'invitation.ics';
+          link.textContent = "➕ Ajouter au calendrier";
+          link.style.display = 'inline-block';
+          link.style.marginTop = '8px';
+          result.appendChild(document.createElement('br'));
+          result.appendChild(link);
+        }
+      } else {
+        showMessage(`Dommage ${prenom} ${nom}, peut-être une prochaine fois 😢`, "warn");
+      }
+
+      // Nettoyage
+      form.reset();
+      fields.forEach(id => localStorage.removeItem(id));
+
+      if (LOCK_AFTER_SUCCESS){
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>✔ Envoyé</span>`;
+        submitBtn.style.backgroundColor = "#999";
+        submitBtn.style.cursor = "not-allowed";
+      } else {
+        setLoading(false);
+      }
     } else {
-      result.textContent = `Dommage ${prenom} ${nom}, peut-être une prochaine fois 😢`;
-      result.style.color = "orange";
+      const detail = text || "Erreur serveur";
+      showMessage(`Erreur lors de l'envoi. ${detail}`, "err");
+      setLoading(false);
     }
-    result.classList.add("show");
-
-    form.reset();
-    fields.forEach(id => localStorage.removeItem(id));
-
-    localStorage.setItem("formSent", "true");
-    lockSubmitButton("✔ Envoyé");
-  })
-  .catch(err => {
-    result.textContent = "Erreur lors de l'envoi. Réessaie plus tard.";
-    result.style.color = "red";
-    result.classList.add("show");
-    result.style.animation = "shake 0.5s";
+  } catch(err){
+    const msg = err?.name === "AbortError" ? "Délai dépassé, réessayez." : "Vérifiez votre connexion et réessayez.";
+    showMessage(`Erreur lors de l'envoi. ${msg}`, "err");
+    setLoading(false);
     console.error(err);
-
-    // Réactivation après 5s en cas d'erreur
-    resetSpamBlock();
-  })
-  .finally(() => {
-    loader.style.display = "none"; 
-  });
+  } finally {
+    isSubmitting = false;
+  }
 });
-
-// Fonction pour réactiver si erreur
-function resetSpamBlock(){
-  setTimeout(() => {
-    spamBlock = false;
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Envoyer";
-  }, 5000); // délai 5s
-}
 </script>
 </body>
 </html>
-
