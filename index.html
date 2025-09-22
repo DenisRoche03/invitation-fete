@@ -18,20 +18,64 @@ body{
   background:var(--bg);
   display:flex; flex-direction:column; align-items:center; min-height:100vh;
 }
+
+/* HEADER */
 header{
-  width:100%; background:var(--primary); color:#fff;
-  display:flex; align-items:center; justify-content:center; padding:16px 0;
+  width:100%;
+  background:var(--primary);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 24px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
-}
-header{
-  width:100%; background:var(--primary); color:#fff;
-  display:flex; align-items:left; padding:12px 24px; box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
 header img{
   height:50px;
   display:block;
 }
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+/* Bouton connexion style "site aérien" */
+.icon-btn{
+  background:rgba(255,255,255,0.9);
+  border:1px solid #fff;
+  color:var(--primary);
+  font-weight:600;
+  font-size:0.95rem;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:0.3s;
+}
+.icon-btn:hover{
+  background:#fff;
+  color:var(--secondary);
+}
+/* Sélecteur langue style moderne */
+.lang-select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background:#fff url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23408ABA"/></svg>') no-repeat right 10px center;
+  background-size:10px;
+  border:none;
+  border-radius:6px;
+  padding:6px 30px 6px 10px;
+  color:var(--primary);
+  font-weight:600;
+  cursor:pointer;
+  font-size:0.95rem;
+}
+.lang-select:focus{
+  outline:none;
+  box-shadow:0 0 3px rgba(64,138,186,0.8);
+}
 
+/* MAIN FORM */
 main{
   flex:1; display:flex; align-items:center; justify-content:center;
   width:100%; padding:24px;
@@ -76,7 +120,15 @@ button[disabled]{ opacity:.65; cursor:not-allowed; }
 <body>
 
 <header>
-  <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
+  <img src="Logo/AirArlette.png" alt="Logo Air Arlette">
+  <div class="header-right">
+    <button class="icon-btn" title="Se connecter">🔑 Connexion</button>
+    <select class="lang-select" title="Changer de langue">
+      <option value="fr" selected>Français</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+  </div>
 </header>
 
 <main>
@@ -243,13 +295,14 @@ function startCooldown(){
   cooldownTimer=setInterval(()=>{
     remaining--;
     if(remaining>0) submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
-    else{ clearInterval(cooldownTimer); submitBtn.disabled=false; submitBtn.innerHTML=`<span>Envoyer</span>`; }
+    else{
+      clearInterval(cooldownTimer);
+      submitBtn.disabled=false;
+      submitBtn.innerHTML=`<span>Envoyer</span>`;
+    }
   },1000);
 }
 </script>
 
 </body>
 </html>
-
-
-
