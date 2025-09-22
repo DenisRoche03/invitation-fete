@@ -6,7 +6,7 @@
 <title>Invitation à la fête</title>
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -24,8 +24,14 @@ form {
   width:300px;
   text-align:center;
 }
+label {
+  display:block;
+  margin-top:10px;
+  font-size:0.9em;
+  text-align:left;
+}
 input, select, button {
-  margin:10px 0;
+  margin:8px 0;
   padding:10px;
   width:100%;
   border-radius:6px;
@@ -36,9 +42,11 @@ button {
   background-color:#4CAF50;
   color:white;
   cursor:pointer;
-  transition:0.3s;
+  transition:0.2s;
 }
 button:hover { background-color:#45a049; }
+button:active { transform:scale(0.97); }
+
 #result {
   margin-top:20px;
   font-size:1.2em;
@@ -46,6 +54,18 @@ button:hover { background-color:#45a049; }
   transform:translateY(20px);
   transition:all 0.6s ease;
 }
+#result.show {
+  opacity:1;
+  transform:translateY(0);
+}
+
+#loader {
+  display:none;
+  margin-top:10px;
+  font-size:1em;
+  color:#333;
+}
+
 @keyframes shake {
   0%,100%{transform:translateX(0);}
   25%{transform:translateX(-5px);}
@@ -71,24 +91,39 @@ button:hover { background-color:#45a049; }
 <body>
 <h1>Validez votre participation 🎉</h1>
 <form id="invitationForm">
-<input type="text" id="prenom" placeholder="Prénom" required>
-<input type="text" id="nom" placeholder="Nom" required>
-<input type="email" id="email" placeholder="Adresse mail" required>
-<select id="participation" required>
-<option value="">-- Participez-vous ? --</option>
-<option value="oui">Oui</option>
-<option value="non">Non</option>
-</select>
-<button type="submit">Envoyer</button>
+  <label for="prenom">Prénom</label>
+  <input type="text" id="prenom" name="prenom" placeholder="Prénom" autocomplete="given-name" required>
+  
+  <label for="nom">Nom</label>
+  <input type="text" id="nom" name="nom" placeholder="Nom" autocomplete="family-name" required>
+  
+  <label for="email">Adresse mail</label>
+  <input type="email" id="email" name="email" placeholder="Adresse mail" autocomplete="email" required>
+  
+  <label for="participation">Participation</label>
+  <select id="participation" name="participation" required>
+    <option value="">-- Participez-vous ? --</option>
+    <option value="oui">Oui</option>
+    <option value="non">Non</option>
+  </select>
+  
+  <button type="submit">Envoyer</button>
 </form>
+<div id="loader">⏳ Envoi en cours...</div>
 <p id="result"></p>
 
 <script>
 const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
+const loader = document.getElementById("loader");
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // Remplace par ton URL Google Apps Script
 
+let lastConfetti = 0;
 function launchConfetti(){
+  const now = Date.now();
+  if(now - lastConfetti < 1000) return; // max 1 tir/s
+  lastConfetti = now;
+  
   for(let i=0;i<50;i++){
     const confetti = document.createElement("div");
     confetti.classList.add("confetti");
@@ -108,13 +143,26 @@ form.addEventListener("submit", function(e){
   const email = document.getElementById("email").value.trim();
   const participation = document.getElementById("participation").value;
 
-  if(!prenom || !nom || !email || !participation){
-    result.textContent = "Veuillez remplir tous les champs !";
+  // Validation email regex
+  const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  if(!emailPattern.test(email)){
+    result.textContent = "Adresse mail invalide.";
     result.style.color = "red";
-    result.style.opacity = "1";
+    result.classList.add("show");
     result.style.animation = "shake 0.5s";
     return;
   }
+
+  if(!prenom || !nom || !email || !participation){
+    result.textContent = "Veuillez remplir tous les champs !";
+    result.style.color = "red";
+    result.classList.add("show");
+    result.style.animation = "shake 0.5s";
+    return;
+  }
+
+  loader.style.display = "block"; // affiche le loader
+  result.classList.remove("show");
 
   fetch(SHEET_URL, {
     method: "POST",
@@ -130,17 +178,19 @@ form.addEventListener("submit", function(e){
       result.textContent = `Dommage ${prenom} ${nom}, peut-être une prochaine fois 😢`;
       result.style.color = "orange";
     }
-    result.style.opacity = "1";
-    result.style.transform = "translateY(0)";
+    result.classList.add("show");
     result.style.animation = "";
     form.reset();
   })
   .catch(err => {
     result.textContent = "Erreur lors de l'envoi. Réessaie plus tard.";
     result.style.color = "red";
-    result.style.opacity = "1";
+    result.classList.add("show");
     result.style.animation = "shake 0.5s";
     console.error(err);
+  })
+  .finally(() => {
+    loader.style.display = "none"; // cache le loader
   });
 });
 </script>
