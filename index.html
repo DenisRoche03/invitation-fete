@@ -4,11 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enregistrement - Air Arlette</title>
+
+<!-- Material Icons Google -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <style>
 :root{
   --primary:#408ABA;
   --secondary:#00ADEF;
-  --bg:#FFFFFF;
+  --bg:#F5F5F5;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
@@ -70,14 +74,21 @@ header img{
   gap:4px;
 }
 
+.icon-conn .material-icons{
+  vertical-align: middle;
+  margin-right:4px;
+  font-size:20px;
+}
+
 /* MAIN FORM */
 main{
   flex:1; 
   display:flex; 
-  align-items:center; 
+  align-items:center;
   justify-content:center;
-  width:100%; 
-  padding:24px;
+  width:100%;
+  padding:24px 16px;
+  min-height: calc(100vh - 80px);
 }
 
 form.boarding-pass{
@@ -230,6 +241,33 @@ button[disabled]{
   box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
+/* Material Icons pour labels droite */
+.form-right label .material-icons{
+  vertical-align: middle;
+  margin-right:6px;
+  font-size:20px;
+  color:var(--primary);
+}
+
+/* Inputs avec Material Icons */
+.input-icon{
+  position: relative;
+  margin-top:16px;
+}
+
+.input-icon input{
+  padding-left:36px; /* espace pour icône */
+}
+
+.input-icon .material-icons{
+  position: absolute;
+  left:10px;
+  top:50%;
+  transform: translateY(-50%);
+  color:#333;
+  font-size:20px;
+}
+
 /* RESPONSIVE */
 @media(max-width:640px){
   .form-columns{
@@ -243,17 +281,25 @@ button[disabled]{
     right:0;
     width:100%;
     height:2px;
-    background:#D4D4D4;  /* ligne pleine horizontale */
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    margin:16px 0;  /* espace autour de la ligne */
+    background:#D4D4D4;
+    box-shadow:0 1px 4px rgba(0,0,0,0.1);
+    margin:16px 0;
   }
 
-  /* Ajustement input nombre de personnes */
   #nb_personnes{
     margin-top:8px;
     margin-bottom:16px;
     padding-right:14px;
     box-sizing:border-box;
+  }
+
+  main{
+    padding:24px 16px;
+  }
+
+  form.boarding-pass{
+    max-width:100%;
+    padding:24px;
   }
 }
 </style>
@@ -268,7 +314,7 @@ button[disabled]{
       <span>France – FR</span>
     </div>
     <div class="icon-conn">
-      <span>👤</span> <span>Se connecter</span>
+      <span class="material-icons">person</span> <span>Se connecter</span>
     </div>
   </div>
 </header>
@@ -285,14 +331,20 @@ button[disabled]{
     <div class="form-columns">
       <!-- Colonne gauche -->
       <div class="form-left">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
+        <div class="input-icon">
+          <span class="material-icons">person</span>
+          <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
+        </div>
 
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" name="nom" placeholder="Nom" required />
+        <div class="input-icon">
+          <span class="material-icons">badge</span>
+          <input type="text" id="nom" name="nom" placeholder="Nom" required />
+        </div>
 
-        <label for="email">Adresse mail</label>
-        <input type="email" id="email" name="email" placeholder="Adresse mail" required />
+        <div class="input-icon">
+          <span class="material-icons">email</span>
+          <input type="email" id="email" name="email" placeholder="Adresse mail" required />
+        </div>
 
         <label for="participation">Participez-vous ?</label>
         <select id="participation" name="participation" required>
@@ -301,22 +353,24 @@ button[disabled]{
           <option value="non">Non</option>
         </select>
 
-        <label for="nb_personnes">Nombre de personnes</label>
-        <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" required />
+        <div class="input-icon">
+          <span class="material-icons">groups</span>
+          <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" required />
+        </div>
       </div>
 
       <!-- Colonne droite -->
       <div class="form-right">
-        <label>✈️ Compagnie</label>
+        <label><span class="material-icons">flight</span> Compagnie</label>
         <p class="readonly-field">Air Arlette</p>
 
-        <label>🛫 Numéro de vol</label>
+        <label><span class="material-icons">confirmation_number</span> Numéro de vol</label>
         <p class="readonly-field">AA1234</p>
 
-        <label>🏙️ Destination</label>
+        <label><span class="material-icons">location_city</span> Destination</label>
         <p class="readonly-field">Paris</p>
 
-        <label>⏰ Heure de l'embarquement</label>
+        <label><span class="material-icons">schedule</span> Heure de l'embarquement</label>
         <p class="readonly-field">14:30</p>
       </div>
     </div>
