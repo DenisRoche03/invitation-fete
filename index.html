@@ -8,132 +8,219 @@
 :root{
   --primary:#408ABA;
   --secondary:#00ADEF;
-  --bg:#e6f0fa;
+  --bg:#408ABA;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
 }
+
 body{
-  margin:0; font-family:Arial, sans-serif;
+  margin:0; 
+  font-family:Arial, sans-serif;
   background:var(--bg);
-  display:flex; flex-direction:column; align-items:center; min-height:100vh;
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  min-height:100vh;
 }
 
 /* HEADER */
 header{
   width:100%;
   background:var(--primary);
-  color:#fff;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:12px 24px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  color:#fff;
+  position:relative;
 }
+
 header img{
   height:50px;
   display:block;
+  position:absolute;
+  left:10px; /* toujours 10px du bord gauche */
 }
+
 .header-right{
   display:flex;
   align-items:center;
-  gap:12px;
-}
-/* Bouton connexion style "site aérien" */
-.icon-btn{
-  background:rgba(255,255,255,0.9);
-  border:1px solid #fff;
-  color:var(--primary);
-  font-weight:600;
+  gap:16px;
   font-size:0.95rem;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-  transition:0.3s;
-}
-.icon-btn:hover{
-  background:#fff;
-  color:var(--secondary);
-}
-/* Sélecteur langue style moderne */
-.lang-select{
-  appearance:none;
-  -webkit-appearance:none;
-  -moz-appearance:none;
-  background:#fff url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23408ABA"/></svg>') no-repeat right 10px center;
-  background-size:10px;
-  border:none;
-  border-radius:6px;
-  padding:6px 30px 6px 10px;
-  color:var(--primary);
   font-weight:600;
-  cursor:pointer;
-  font-size:0.95rem;
 }
-.lang-select:focus{
-  outline:none;
-  box-shadow:0 0 3px rgba(64,138,186,0.8);
+
+.lang-flag{
+  display:flex; 
+  align-items:center; 
+  gap:4px;
+}
+
+.lang-flag img{
+  height:16px;
+  width:24px;
+  object-fit:cover;
+  border-radius:2px;
+}
+
+.icon-conn{
+  display:flex; 
+  align-items:center; 
+  gap:4px;
 }
 
 /* MAIN FORM */
 main{
-  flex:1; display:flex; align-items:center; justify-content:center;
-  width:100%; padding:24px;
+  flex:1; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  width:100%; 
+  padding:24px;
 }
+
 form.boarding-pass{
-  background:#fff; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  width:100%; max-width:420px; padding:32px;
+  background:#fff; 
+  border-radius:16px; 
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  width:100%; 
+  max-width:420px; 
+  padding:32px;
   position:relative;
   border-top:6px solid var(--secondary);
 }
+
 form h1{
-  text-align:center; color:var(--primary); margin-bottom:24px;
-  font-size:1.5rem; letter-spacing:1px;
+  text-align:center; 
+  color:var(--primary); 
+  margin-bottom:24px;
+  font-size:1.5rem; 
+  letter-spacing:1px;
 }
-label{ display:block; margin-top:16px; font-weight:600; color:var(--text); }
+
+label{ 
+  display:block; 
+  margin-top:16px; 
+  font-weight:600; 
+  color:var(--text); 
+}
+
 input, select, button{
-  width:100%; padding:14px; margin-top:8px;
-  border-radius:6px; border:1px solid #ccc; font-size:1rem;
+  width:100%; 
+  padding:14px; 
+  margin-top:8px;
+  border-radius:6px; 
+  border:1px solid #ccc; 
+  font-size:1rem;
 }
+
 input:focus, select:focus{
-  outline:none; border-color:var(--primary); box-shadow:0 0 5px rgba(0,116,217,0.5);
+  outline:none; 
+  border-color:var(--primary); 
+  box-shadow:0 0 5px rgba(0,116,217,0.5);
 }
+
 button{
-  background:var(--btn); color:#fff; border:none; cursor:pointer; font-weight:600; margin-top:24px;
-  transition:0.3s; font-size:1.1rem;
+  background:var(--btn); 
+  color:#fff; 
+  border:none; 
+  cursor:pointer; 
+  font-weight:600; 
+  margin-top:24px;
+  transition:0.3s; 
+  font-size:1.1rem;
 }
-button:hover{ background:var(--btn-hover); }
-button[disabled]{ opacity:.65; cursor:not-allowed; }
-#result{ margin-top:16px; text-align:center; font-weight:600; }
+
+button:hover{ 
+  background:var(--btn-hover); 
+}
+
+button[disabled]{ 
+  opacity:.65; 
+  cursor:not-allowed; 
+}
+
+#result{ 
+  margin-top:16px; 
+  text-align:center; 
+  font-weight:600; 
+}
+
 .confetti{
-  position:absolute; top:-10px; width:8px; height:8px; border-radius:50%;
-  opacity:.85; pointer-events:none; will-change: transform, opacity;
+  position:absolute; 
+  top:-10px; 
+  width:8px; 
+  height:8px; 
+  border-radius:50%;
+  opacity:.85; 
+  pointer-events:none; 
+  will-change: transform, opacity;
   transform: translate3d(0,0,0);
   animation:fall linear forwards;
 }
-@keyframes fall{ to{ transform: translate3d(var(--dx,0),100vh,0) rotate(360deg); opacity:0; } }
-.hp-field{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
-.spinner{ width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .7s linear infinite; }
-@keyframes spin{ to{ transform:rotate(360deg) } }
+
+@keyframes fall{ 
+  to{ transform: translate3d(var(--dx,0),100vh,0) rotate(360deg); opacity:0; } 
+}
+
+.hp-field{ 
+  position:absolute; 
+  left:-10000px; 
+  top:auto; 
+  width:1px; 
+  height:1px; 
+  overflow:hidden; 
+}
+
+.spinner{ 
+  width:16px; 
+  height:16px; 
+  border:2px solid currentColor; 
+  border-right-color:transparent; 
+  border-radius:50%; 
+  animation:spin .7s linear infinite; 
+}
+
+@keyframes spin{ 
+  to{ transform:rotate(360deg) } 
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  form.boarding-pass{
+    padding:24px;
+  }
+  form h1{
+    font-size:1.3rem;
+  }
+  header{
+    padding:12px 16px;
+  }
+  header img{
+    left:10px;
+  }
+}
 </style>
 </head>
 <body>
 
 <header>
-  <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
+  <img src="Logo/AirArlette.png" alt="Logo Air Arlette">
   <div class="header-right">
-    <button class="icon-btn" title="Se connecter">🔑 Connexion</button>
-    <select class="lang-select" title="Changer de langue">
-      <option value="fr" selected>Français</option>
-      <option value="en">English</option>
-      <option value="es">Español</option>
-    </select>
+    <div class="lang-flag">
+      <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" alt="France">
+      <span>France – FR</span>
+    </div>
+    <div class="icon-conn">
+      <span>👤</span> <span>Se connecter</span>
+    </div>
   </div>
 </header>
 
 <main>
 <form id="invitationForm" class="boarding-pass" novalidate>
-  <!-- Honeypot anti-bot -->
   <div class="hp-field">
     <label for="hp">Ne pas remplir</label>
     <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
@@ -306,4 +393,3 @@ function startCooldown(){
 
 </body>
 </html>
-
