@@ -12,7 +12,7 @@
 :root{
   --primary:#408ABA;
   --secondary:#00ADEF;
-  --bg:#F5F5F5;
+  --bg:#FFFFFF;
   --text:#333;
   --btn:#FF4136;
   --btn-hover:#e03e2d;
@@ -386,7 +386,7 @@ button[disabled]{
 
 <script>
 // ==== CONFIG ====
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
+const SHEET_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // <-- à remplacer
 const LOCK_AFTER_SUCCESS = true;
 const ANTISPAM_DELAY = 30;
 
@@ -475,12 +475,16 @@ form.addEventListener("submit", async e=>{
     const res=await fetch(SHEET_URL,{method:"POST",body:params});
     const text=await res.text();
 
-    if(res.ok && /^OK/i.test(text)){
-      if(participation==="oui"){
-        showMessage(`Merci ${prenom} ${nom}, on se réjouit de ta présence ! 🎊`,"ok");
+    if(res.ok){
+      if(/^OK/i.test(text)){
+        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok");
         launchConfetti();
+      } else if(/^UPDATED/i.test(text)){
+        showMessage(`Vos informations ont été mises à jour avec succès, ${prenom} ${nom} ! ✏️`,"ok");
+      } else if(/^NO_CHANGE/i.test(text)){
+        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn");
       } else {
-        showMessage(`Dommage ${prenom} ${nom}, peut-être une prochaine fois 😢`,"warn");
+        showMessage(`Erreur serveur : ${text}`,"err");
       }
 
       form.reset();
@@ -522,6 +526,5 @@ function startCooldown(){
   },1000);
 }
 </script>
-
 </body>
 </html>
