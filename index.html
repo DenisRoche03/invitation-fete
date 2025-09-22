@@ -117,122 +117,22 @@
 
 <script>
 /** ========= CONFIG ========= **/
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; // ⚠️ Remplacer par ton URL /exec
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;   // true = bouton reste grisé après succès
 const ENABLE_ICS = false;          // true = proposer "Ajouter au calendrier"
-const ICS_EVENT = {
-  title: "La Fête de l'Équipe",
-  // Format local 'YYYYMMDDTHHMMSS' (sans Z) ou UTC avec Z
-  start: "20251215T180000",
-  end:   "20251215T230000",
-  location: "Salle Polyvalente, Amanzé",
-  description: "Soirée conviviale 🎉"
-};
+const ANTISPAM_DELAY = 30;         // ⏳ délai anti-spam en secondes
 
-/** ======== Sélection éléments ======== **/
-const form = document.getElementById("invitationForm");
-const result = document.getElementById("result");
-const loader = document.getElementById("loader");
-const submitBtn = document.getElementById("submitBtn");
-const fields = ["prenom", "nom", "email", "participation"];
-
-/** ====== Sauvegarde locale ====== **/
-window.addEventListener("DOMContentLoaded", () => {
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    const saved = localStorage.getItem(id);
-    if (el && saved !== null) el.value = saved;
-  });
-});
-fields.forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener("input", e => {
-    localStorage.setItem(id, e.target.value);
-  });
-});
-
-/** ====== Confetti ====== **/
-let lastConfetti = 0;
-function launchConfetti(count=40){
-  const now = Date.now();
-  if (now - lastConfetti < 1000) return; // max 1 tir/s
-  lastConfetti = now;
-
-  for(let i=0;i<count;i++){
-    const c = document.createElement("div");
-    c.className = "confetti";
-    const hue = Math.floor(Math.random()*360);
-    const size = 6 + Math.random()*10;
-    const left = Math.random()*100; // vw
-    const dx = (Math.random()*200 - 100) + "px"; // drift horizontal
-    const dur = (2 + Math.random()*2).toFixed(2) + "s";
-
-    c.style.backgroundColor = `hsl(${hue} 90% 55%)`;
-    c.style.left = left + "vw";
-    c.style.width = c.style.height = size + "px";
-    c.style.setProperty("--dx", dx);
-    c.style.animationDuration = dur;
-    document.body.appendChild(c);
-    setTimeout(()=> c.remove(), parseFloat(dur)*1000);
-  }
-}
-
-/** ====== UI Helpers ====== **/
-function showMessage(msg, cls){
-  result.textContent = msg;
-  result.classList.remove("ok","warn","err","show");
-  if (cls) result.classList.add(cls);
-  // Rejouer l'animation shake si erreur
-  result.style.animation = "none";
-  // force reflow
-  void result.offsetHeight;
-  if (cls === "err") result.style.animation = "shake .35s";
-  result.classList.add("show");
-}
-
-function setLoading(loading){
-  if (loading){
-    loader.style.display = "block";
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="spinner" aria-hidden="true" style="border:2px solid #fff;border-right-color:transparent"></span><span>Envoi…</span>`;
-  } else {
-    loader.style.display = "none";
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = `<span>Envoyer</span>`;
-  }
-}
-
-/** ====== ICS ====== **/
-function buildICS({title, start, end, location='', description=''}){
-  const uid = (crypto.randomUUID?.() || (Date.now() + "@local"));
-  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
-  const esc = (s)=> String(s).replace(/([,;])/g,'\\$1').replace(/\n/g,'\\n');
-  const ics = [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RSVP//FR//','CALSCALE:GREGORIAN','METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `UID:${uid}`,
-    `DTSTAMP:${now}`,
-    `DTSTART:${start}`,
-    `DTEND:${end}`,
-    `SUMMARY:${esc(title)}`,
-    `LOCATION:${esc(location)}`,
-    `DESCRIPTION:${esc(description)}`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-  const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
-  return URL.createObjectURL(blob);
-}
+/** ... reste de ton code inchangé ... **/
 
 /** ====== Submit ====== **/
 let isSubmitting = false;
+let cooldownTimer = null;
 
 form.addEventListener("submit", async (e)=>{
   e.preventDefault();
   if (isSubmitting) return;
 
-  // Validation native HTML (required, type=email)
+  // Validation native HTML
   if (!form.reportValidity()) return;
 
   const prenom = document.getElementById("prenom").value.trim();
@@ -241,7 +141,6 @@ form.addEventListener("submit", async (e)=>{
   const participation = document.getElementById("participation").value;
   const hp = (document.getElementById("hp")?.value || "").trim();
 
-  // Regex email en complément (message personnalisé)
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)){
     showMessage("Adresse mail invalide.", "err");
@@ -253,8 +152,7 @@ form.addEventListener("submit", async (e)=>{
     return;
   }
 
-  // Honeypot rempli => on répond OK sans envoyer (bloque bots basiques)
-  if (hp){
+  if (hp){ // Honeypot
     showMessage("Merci !", "ok");
     return;
   }
@@ -263,20 +161,14 @@ form.addEventListener("submit", async (e)=>{
   setLoading(true);
   result.classList.remove("show");
 
-  // Prépare les données (prend tous les champs du formulaire)
   const params = new URLSearchParams(new FormData(form));
 
-  // Timeout via AbortController
   const ctrl = new AbortController();
   const TIMEOUT_MS = 12000;
   const t = setTimeout(()=> ctrl.abort("timeout"), TIMEOUT_MS);
 
   try{
-    const res = await fetch(SHEET_URL, {
-      method: "POST",
-      body: params,
-      signal: ctrl.signal
-    });
+    const res = await fetch(SHEET_URL, { method: "POST", body: params, signal: ctrl.signal });
     clearTimeout(t);
     const text = await res.text();
 
@@ -284,7 +176,6 @@ form.addEventListener("submit", async (e)=>{
       if (participation === "oui"){
         showMessage(`Merci ${prenom} ${nom}, on se réjouit de ta présence ! 🎊`, "ok");
         launchConfetti();
-
         if (ENABLE_ICS){
           const url = buildICS(ICS_EVENT);
           const link = document.createElement('a');
@@ -299,7 +190,6 @@ form.addEventListener("submit", async (e)=>{
         showMessage(`Dommage ${prenom} ${nom}, peut-être une prochaine fois 😢`, "warn");
       }
 
-      // Nettoyage
       form.reset();
       fields.forEach(id => localStorage.removeItem(id));
 
@@ -309,22 +199,41 @@ form.addEventListener("submit", async (e)=>{
         submitBtn.style.backgroundColor = "#999";
         submitBtn.style.cursor = "not-allowed";
       } else {
-        setLoading(false);
+        startCooldown(); // ⏳ anti-spam
       }
     } else {
       const detail = text || "Erreur serveur";
       showMessage(`Erreur lors de l'envoi. ${detail}`, "err");
-      setLoading(false);
+      startCooldown(); // ⏳ anti-spam même en cas d’échec
     }
   } catch(err){
     const msg = err?.name === "AbortError" ? "Délai dépassé, réessayez." : "Vérifiez votre connexion et réessayez.";
     showMessage(`Erreur lors de l'envoi. ${msg}`, "err");
-    setLoading(false);
+    startCooldown(); // ⏳ anti-spam
     console.error(err);
   } finally {
     isSubmitting = false;
   }
 });
+
+/** ====== Anti-spam Cooldown ====== **/
+function startCooldown(){
+  let remaining = ANTISPAM_DELAY;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `⏳ Attendez ${remaining}s`;
+
+  cooldownTimer = setInterval(()=>{
+    remaining--;
+    if (remaining > 0){
+      submitBtn.innerHTML = `⏳ Attendez ${remaining}s`;
+    } else {
+      clearInterval(cooldownTimer);
+      setLoading(false);
+      submitBtn.innerHTML = `<span>Envoyer</span>`;
+    }
+  }, 1000);
+}
 </script>
 </body>
 </html>
+
