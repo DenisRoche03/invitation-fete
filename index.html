@@ -276,7 +276,7 @@ function setLoading(loading){
   if(loading){
     loader.style.display="block";
     submitBtn.disabled=true;
-    submitBtn.innerHTML=`<span class="spinner" aria-hidden="true" style="border:2px solid #fff;border-right-color:transparent"></span><span>Envoi…</span>`;
+    submitBtn.innerHTML=`<span>Envoi…</span>`;
   } else {
     loader.style.display="none";
     submitBtn.disabled=false;
@@ -329,4 +329,5 @@ form.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
