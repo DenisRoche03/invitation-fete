@@ -15,14 +15,20 @@
   --btn-hover:#e03e2d;
 }
 body{
-  margin:0; font-family:Arial,sans-serif;
+  margin:0;
+  font-family:Arial,sans-serif;
   background:var(--bg);
-  display:flex; flex-direction:column;
-  align-items:center; min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
 }
 header{
-  width:100%; background:var(--primary);
-  display:flex; align-items:center; justify-content:space-between;
+  width:100%;
+  background:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   padding:12px 24px; padding-left:34px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
   color:#fff;
@@ -38,49 +44,33 @@ form.boarding-pass{
   background:#fff;
   border-radius:20px;
   box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  width:100%; max-width:800px;
+  width:100%; max-width:900px;
   padding:32px; position:relative;
   border-top:6px solid var(--secondary);
-  background:linear-gradient(180deg,#fff,#fdfdfd);
-  position: relative;
 }
-form.boarding-pass::before,
-form.boarding-pass::after{
-  content:"";
-  position:absolute;
-  top:50%;
-  width:20px; height:20px;
-  background:var(--bg);
-  border-radius:50%;
-  transform:translateY(-50%);
-  box-shadow:inset 0 0 5px rgba(0,0,0,0.2);
-}
-form.boarding-pass::before{left:-10px;}
-form.boarding-pass::after{right:-10px;}
-
 form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;letter-spacing:1px;}
 label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
 .form-columns{
   display:flex;
   gap:16px;
   flex-wrap:wrap;
-  align-items:stretch; /* assure que gauche et droite ont la même hauteur */
+  align-items:stretch; /* même hauteur */
 }
 .form-left,.form-right{
   flex:1 1 250px;
-  display:flex; 
+  display:flex;
   flex-direction:column;
 }
 .form-left{padding-right:16px;position:relative;}
 .form-left::after{content:"";position:absolute;top:0;right:0;width:2px;height:100%;background:#D4D4D4;box-shadow: 1px 0 4px rgba(0,0,0,0.1);}
 .form-right{
-  padding-left:16px;
-  justify-content:space-between; /* répartit le contenu haut/bas */
-  background:#fdfdfd;
-  border:1px dashed #bbb;
-  border-radius:12px;
   padding:16px;
+  justify-content:space-between;
+  background:linear-gradient(180deg,#f9f9f9,#fff);
+  border-radius:12px;
   box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  display:flex;
+  flex-direction:column;
 }
 input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
 input:focus-visible,select:focus-visible{outline:3px solid var(--secondary);outline-offset:2px;}
@@ -88,52 +78,37 @@ button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:6
 button:hover{background:var(--btn-hover);}
 button:active{transform:scale(0.96);}
 button[disabled]{opacity:.65;cursor:not-allowed;}
-#result{margin-top:16px;text-align:center;font-weight:600;}
-.confetti{position:absolute;top:-10px;width:8px;height:8px;border-radius:50%;opacity:.85;pointer-events:none;will-change: transform, opacity;transform: translate3d(0,0,0);animation:fall linear forwards;}
-@keyframes fall{to{ transform: translate3d(var(--dx,0),100vh,0) rotate(360deg); opacity:0; }}
-.hp-field{position:absolute; left:-10000px; top:auto;width:1px;height:1px;overflow:hidden;}
-.spinner{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{ to{ transform:rotate(360deg) } }
 .input-icon{position: relative;margin-top:16px;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
-
-/* Bloc billet avec icônes d’avion */
-.event-info {
+/* Colonne droite style billet avion */
+.event-info{
   display:flex;
   justify-content:space-between;
   width:100%;
-  font-size:1rem;
-  font-weight:500;
-  color:#333;
+  margin-bottom:20px;
 }
-.event-info .left, .event-info .right {
+.event-info .left, .event-info .right{
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:6px;
 }
-.plane-depart, .plane-arrive {
+.plane-depart, .plane-arrive{
   font-size:32px;
   color:var(--secondary);
 }
 .plane-depart{transform:rotate(-15deg);}
 .plane-arrive{transform:rotate(15deg);}
-.flight-number {
+.flight-number{
   text-align:center;
   font-size:1.2rem;
   font-weight:700;
   color:var(--primary);
-  margin-top:20px;
 }
-
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
   .form-left::after{top:auto;bottom:0;left:0;right:0;width:100%;height:2px;background:#D4D4D4;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin:16px 0;}
-  #nb_personnes{margin-top:8px;margin-bottom:16px;padding-right:14px;box-sizing:border-box;}
-  main{padding:24px 16px;}
-  form.boarding-pass{max-width:100%;padding:24px;}
-  .event-info{flex-direction:column; gap:12px;}
 }
 </style>
 </head>
@@ -154,12 +129,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 
 <main>
 <form id="invitationForm" class="boarding-pass" novalidate>
-  <div class="hp-field">
-    <label for="hp">Ne pas remplir</label>
-    <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" />
-  </div>
   <h1>Enregistrement à la fête</h1>
-
   <div class="form-columns">
     <!-- Colonne gauche -->
     <div class="form-left">
@@ -187,7 +157,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite dynamique -->
+    <!-- Colonne droite style billet avion -->
     <div class="form-right">
       <div class="event-info">
         <div class="left">
@@ -209,44 +179,8 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   </div>
 
   <button type="submit" id="submitBtn"><span>Envoyer</span></button>
-  <div id="loader" style="display:none; text-align:center; margin-top:8px;">
-    <span class="spinner"></span> Envoi…
-  </div>
 </form>
 </main>
-<p id="result" role="status" aria-live="polite"></p>
 
-<script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
-const LOCK_AFTER_SUCCESS = true;
-const ANTISPAM_DELAY = 30;
-const form = document.getElementById("invitationForm");
-const result = document.getElementById("result");
-const loader = document.getElementById("loader");
-const submitBtn = document.getElementById("submitBtn");
-const fields = ["prenom","nom","email","participation","nb_personnes"];
-
-fields.forEach(id=>{
-  const el=document.getElementById(id);
-  const saved=localStorage.getItem(id);
-  if(el && saved) el.value=saved;
-  if(!el) return;
-  el.addEventListener("input",e=>localStorage.setItem(id,e.target.value));
-});
-
-function launchConfetti(count=40){
-  for(let i=0;i<count;i++){
-    const c=document.createElement("div");
-    c.className="confetti";
-    const hue=Math.floor(Math.random()*360);
-    const size=6+Math.random()*10;
-    const left=Math.random()*100;
-    const dx=(Math.random()*200-100)+"px";
-    const dur=(2+Math.random()*2).toFixed(2)+"s";
-    c.style.backgroundColor=`hsl(${hue} 90% 55%)`;
-    c.style.left=left+"vw";
-    c.style.width=c.style.height=size+"px";
-    c.style.setProperty("--dx",dx);
-    c.style.animationDuration=dur;
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),parseFloat(dur)*100
+</body>
+</html>
