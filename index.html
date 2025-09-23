@@ -74,7 +74,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
 
-/* Colonne droite moderne simplifiée */
+/* Colonne droite moderne avec blocs côte à côte */
 .form-right{
   background: linear-gradient(180deg,#fff,#f0f8ff);
   border-radius:16px;
@@ -83,27 +83,20 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   flex-direction:column;
   justify-content:space-between;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  position: relative;
   font-family: 'Montserrat', sans-serif;
 }
 .flight-card{
   display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
+  justify-content:space-between;
+  width:100%;
   background:#fefefe;
   border-radius:12px;
   padding:20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  width:100%;
 }
-.flight-section{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+.flight-subsection{
+  flex:1;
   text-align:center;
-  gap:8px;
 }
 .plane-icon{
   font-size:36px;
@@ -128,6 +121,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
   .form-left::after{top:auto;bottom:0;left:0;right:0;width:100%;height:2px;background:#D4D4D4;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin:16px 0;}
+  .flight-card{flex-direction:column; gap:12px;}
 }
 </style>
 </head>
@@ -176,16 +170,20 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite simplifiée -->
+    <!-- Colonne droite moderne côte à côte -->
     <div class="form-right">
       <div class="flight-card">
-        <div class="flight-section">
+        <div class="flight-subsection">
           <span class="material-icons plane-icon">flight_takeoff</span>
           <p class="location">Salle des fêtes d’Amanzé</p>
           <p class="date">04 Avril 2026</p>
           <p class="time">12:00</p>
+        </div>
+        <div class="flight-subsection">
           <span class="material-icons plane-icon">flight_land</span>
           <p class="location">La retraite</p>
+          <p class="date">?</p>
+          <p class="time">12:00</p>
         </div>
       </div>
       <div class="flight-number">
@@ -199,6 +197,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 </main>
 
 <script>
+// --- Script Google Sheets + anti-spam + confetti ---
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;
 const ANTISPAM_DELAY = 30;
@@ -281,7 +280,7 @@ form.addEventListener("submit", async e=>{
 
   if(hp){ showMessage("Merci !","ok"); return; }
 
-  isSubmitting=true; setLoading(true); result.classList.remove("show");
+  isSubmitting=true; setLoading(true);
   const params=new URLSearchParams(new FormData(form));
 
   try{
@@ -339,5 +338,6 @@ function startCooldown(){
   },1000);
 }
 </script>
+
 </body>
 </html>
