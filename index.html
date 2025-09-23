@@ -42,7 +42,6 @@ form.boarding-pass{
   padding:32px; position:relative;
   border-top:6px solid var(--secondary);
   background:linear-gradient(180deg,#fff,#fdfdfd);
-  /* Effet billet */
   position: relative;
 }
 form.boarding-pass::before,
@@ -61,11 +60,28 @@ form.boarding-pass::after{right:-10px;}
 
 form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;letter-spacing:1px;}
 label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
-.form-columns{display:flex;gap:16px;flex-wrap:wrap;position:relative;}
-.form-left,.form-right{flex:1 1 250px; display:flex; flex-direction:column;}
+.form-columns{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  align-items:stretch; /* assure que gauche et droite ont la même hauteur */
+}
+.form-left,.form-right{
+  flex:1 1 250px;
+  display:flex; 
+  flex-direction:column;
+}
 .form-left{padding-right:16px;position:relative;}
 .form-left::after{content:"";position:absolute;top:0;right:0;width:2px;height:100%;background:#D4D4D4;box-shadow: 1px 0 4px rgba(0,0,0,0.1);}
-.form-right{padding-left:16px;}
+.form-right{
+  padding-left:16px;
+  justify-content:space-between; /* répartit le contenu haut/bas */
+  background:#fdfdfd;
+  border:1px dashed #bbb;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
 input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
 input:focus-visible,select:focus-visible{outline:3px solid var(--secondary);outline-offset:2px;}
 button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:600;margin-top:24px;transition:transform 0.15s, background 0.3s;font-size:1.1rem;}
@@ -82,49 +98,34 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
 
-/* Nouvelle mise en page billet */
+/* Bloc billet avec icônes d’avion */
 .event-info {
   display:flex;
   justify-content:space-between;
   width:100%;
-  background:#fdfdfd;
-  border:1px dashed #bbb;
-  border-radius:12px;
-  padding:16px 24px;
   font-size:1rem;
   font-weight:500;
   color:#333;
 }
-.event-info .left,
-.event-info .right {
+.event-info .left, .event-info .right {
   display:flex;
   flex-direction:column;
+  align-items:center;
   gap:6px;
 }
+.plane-depart, .plane-arrive {
+  font-size:32px;
+  color:var(--secondary);
+}
+.plane-depart{transform:rotate(-15deg);}
+.plane-arrive{transform:rotate(15deg);}
 .flight-number {
-  margin-top:20px;
   text-align:center;
   font-size:1.2rem;
   font-weight:700;
   color:var(--primary);
+  margin-top:20px;
 }
-  
-.plane-depart, .plane-arrive {
-  font-size: 32px;
-  display: block;
-  text-align: center;
-  margin-bottom: 8px;
-  color: var(--secondary);
-}
-
-.plane-depart {
-  transform: rotate(-15deg);
-}
-
-.plane-arrive {
-  transform: rotate(15deg);
-}
-
 
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
@@ -132,6 +133,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   #nb_personnes{margin-top:8px;margin-bottom:16px;padding-right:14px;box-sizing:border-box;}
   main{padding:24px 16px;}
   form.boarding-pass{max-width:100%;padding:24px;}
+  .event-info{flex-direction:column; gap:12px;}
 }
 </style>
 </head>
@@ -185,7 +187,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite refaite -->
+    <!-- Colonne droite dynamique -->
     <div class="form-right">
       <div class="event-info">
         <div class="left">
@@ -195,6 +197,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
           <p>12:00</p>
         </div>
         <div class="right">
+          <span class="material-icons plane-arrive">flight_land</span>
           <p>La retraite</p>
           <p>?</p>
         </div>
@@ -214,10 +217,9 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 <p id="result" role="status" aria-live="polite"></p>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec"; 
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;
 const ANTISPAM_DELAY = 30;
-
 const form = document.getElementById("invitationForm");
 const result = document.getElementById("result");
 const loader = document.getElementById("loader");
@@ -247,107 +249,4 @@ function launchConfetti(count=40){
     c.style.setProperty("--dx",dx);
     c.style.animationDuration=dur;
     document.body.appendChild(c);
-    setTimeout(()=>c.remove(),parseFloat(dur)*1000);
-  }
-}
-
-function showMessage(msg,cls){
-  result.textContent=msg;
-  result.classList.remove("ok","warn","err","show");
-  if(cls) result.classList.add(cls);
-  result.style.animation="none";
-  void result.offsetHeight;
-  if(cls==="err") result.style.animation="shake .35s";
-  result.classList.add("show");
-}
-
-function setLoading(loading){
-  if(loading){
-    loader.style.display="block";
-    submitBtn.disabled=true;
-    submitBtn.innerHTML=`<span class="spinner" aria-hidden="true" style="border:2px solid #fff;border-right-color:transparent"></span><span>Envoi…</span>`;
-  } else {
-    loader.style.display="none";
-    submitBtn.disabled=false;
-    submitBtn.innerHTML=`<span>Envoyer</span>`;
-  }
-}
-
-let isSubmitting=false;
-let cooldownTimer=null;
-
-form.addEventListener("submit", async e=>{
-  e.preventDefault();
-  if(isSubmitting) return;
-  if(!form.reportValidity()) return;
-
-  const prenom=document.getElementById("prenom").value.trim();
-  const nom=document.getElementById("nom").value.trim();
-  const email=document.getElementById("email").value.trim();
-  const participation=document.getElementById("participation").value;
-  const nb_personnes=document.getElementById("nb_personnes").value;
-  const hp=(document.getElementById("hp")?.value||"").trim();
-
-  if(hp){ showMessage("Merci !","ok"); return; }
-
-  isSubmitting=true; setLoading(true); result.classList.remove("show");
-  const params=new URLSearchParams(new FormData(form));
-
-  try{
-    const res=await fetch(SHEET_URL,{method:"POST",body:params});
-    const text=await res.text();
-
-    if(res.ok){
-      if(/^OK/i.test(text)){
-        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok");
-        launchConfetti();
-      } else if(/^UPDATED/i.test(text)){
-        showMessage(`Vos informations ont été mises à jour avec succès, ${prenom} ${nom} ! ✏️`,"ok");
-      } else if(/^NO_CHANGE/i.test(text)){
-        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn");
-      } else {
-        showMessage(`Erreur serveur : ${text}`,"err");
-      }
-
-      form.reset();
-      fields.forEach(id=>localStorage.removeItem(id));
-
-      if(LOCK_AFTER_SUCCESS){
-        submitBtn.disabled=true;
-        submitBtn.innerHTML=`<span>✔ Envoyé</span>`;
-        submitBtn.style.backgroundColor="#999";
-        submitBtn.style.cursor="not-allowed";
-      } else startCooldown();
-
-    } else {
-      showMessage(`Erreur lors de l'envoi. ${text}`,"err");
-      startCooldown();
-    }
-
-  } catch(err){
-    showMessage("Erreur lors de l'envoi. Vérifiez votre connexion.","err");
-    console.error(err);
-    startCooldown();
-  } finally{
-    isSubmitting=false; setLoading(false);
-  }
-});
-
-function startCooldown(){
-  let remaining=ANTISPAM_DELAY;
-  submitBtn.disabled=true;
-  submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
-  cooldownTimer=setInterval(()=>{
-    remaining--;
-    if(remaining>0) submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
-    else{
-      clearInterval(cooldownTimer);
-      submitBtn.disabled=false;
-      submitBtn.innerHTML=`<span>Envoyer</span>`;
-    }
-  },1000);
-}
-</script>
-</body>
-</html>
-
+    setTimeout(()=>c.remove(),parseFloat(dur)*100
