@@ -55,7 +55,7 @@ label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
   display:flex;
   gap:16px;
   flex-wrap:wrap;
-  align-items:stretch; /* force colonnes même hauteur */
+  align-items:stretch; /* colonnes même hauteur */
 }
 .form-left,.form-right{
   flex:1 1 250px;
@@ -63,7 +63,7 @@ label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
   flex-direction:column;
 }
 .form-left{
-  padding-right:40px; /* augmente l'espace avec la colonne droite */
+  padding-right:40px; /* espace avec la colonne droite */
   position:relative;
 }
 .form-left::after{
@@ -130,15 +130,16 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 
 /* Responsive */
 @media(max-width:640px){
-  .form-columns{flex-direction:column;gap:16px;}
+  .form-columns{
+    flex-direction:column;
+    gap:16px;
+  }
   .form-left::after{
-    top:auto;
-    bottom:0;
-    left:0;
-    right:0;
-    width:100%;
-    height:2px;
-    margin:16px 0;
+    display:none; /* supprime le trait */
+  }
+  .form-left{
+    padding-right:0;
+    margin-bottom:16px; /* espace entre colonnes */
   }
   .flight-card{flex-direction:column; gap:12px;}
 }
