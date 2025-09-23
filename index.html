@@ -184,3 +184,148 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 
 </body>
 </html>
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
+const LOCK_AFTER_SUCCESS = true;
+const ANTISPAM_DELAY = 30;
+
+const form = document.getElementById("invitationForm");
+const submitBtn = document.getElementById("submitBtn");
+
+const fields = ["prenom","nom","email","participation","nb_personnes"];
+
+// Récupération locale des valeurs
+fields.forEach(id=>{
+  const el=document.getElementById(id);
+  const saved=localStorage.getItem(id);
+  if(el && saved) el.value=saved;
+  if(!el) return;
+  el.addEventListener("input",e=>localStorage.setItem(id,e.target.value));
+});
+
+const result = document.createElement("p");
+result.id="result";
+result.style.textAlign="center";
+result.style.fontWeight="600";
+form.appendChild(result);
+
+const loader = document.createElement("div");
+loader.id="loader";
+loader.style.display="none";
+loader.style.textAlign="center";
+loader.style.marginTop="8px";
+loader.innerHTML='<span class="spinner"></span> Envoi…';
+form.appendChild(loader);
+
+function launchConfetti(count=40){
+  for(let i=0;i<count;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    const hue=Math.floor(Math.random()*360);
+    const size=6+Math.random()*10;
+    const left=Math.random()*100;
+    const dx=(Math.random()*200-100)+"px";
+    const dur=(2+Math.random()*2).toFixed(2)+"s";
+    c.style.backgroundColor=`hsl(${hue} 90% 55%)`;
+    c.style.left=left+"vw";
+    c.style.width=c.style.height=size+"px";
+    c.style.setProperty("--dx",dx);
+    c.style.animationDuration=dur;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),parseFloat(dur)*1000);
+  }
+}
+
+function showMessage(msg,cls){
+  result.textContent=msg;
+  result.className=cls;
+}
+
+function setLoading(loading){
+  if(loading){
+    loader.style.display="block";
+    submitBtn.disabled=true;
+    submitBtn.innerHTML=`<span class="spinner" aria-hidden="true" style="border:2px solid #fff;border-right-color:transparent"></span><span>Envoi…</span>`;
+  } else {
+    loader.style.display="none";
+    submitBtn.disabled=false;
+    submitBtn.innerHTML=`<span>Envoyer</span>`;
+  }
+}
+
+let isSubmitting=false;
+let cooldownTimer=null;
+
+form.addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(isSubmitting) return;
+  if(!form.reportValidity()) return;
+
+  const prenom=document.getElementById("prenom").value.trim();
+  const nom=document.getElementById("nom").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const participation=document.getElementById("participation").value;
+  const nb_personnes=document.getElementById("nb_personnes").value;
+  const hp=(document.getElementById("hp")?.value||"").trim();
+
+  if(hp){ showMessage("Merci !","ok"); return; }
+
+  isSubmitting=true; setLoading(true); result.classList.remove("show");
+  const params=new URLSearchParams(new FormData(form));
+
+  try{
+    const res=await fetch(SHEET_URL,{method:"POST",body:params});
+    const text=await res.text();
+
+    if(res.ok){
+      if(/^OK/i.test(text)){
+        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok");
+        launchConfetti();
+      } else if(/^UPDATED/i.test(text)){
+        showMessage(`Vos informations ont été mises à jour avec succès, ${prenom} ${nom} ! ✏️`,"ok");
+      } else if(/^NO_CHANGE/i.test(text)){
+        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn");
+      } else {
+        showMessage(`Erreur serveur : ${text}`,"err");
+      }
+
+      form.reset();
+      fields.forEach(id=>localStorage.removeItem(id));
+
+      if(LOCK_AFTER_SUCCESS){
+        submitBtn.disabled=true;
+        submitBtn.innerHTML=`<span>✔ Envoyé</span>`;
+        submitBtn.style.backgroundColor="#999";
+        submitBtn.style.cursor="not-allowed";
+      } else startCooldown();
+
+    } else {
+      showMessage(`Erreur lors de l'envoi. ${text}`,"err");
+      startCooldown();
+    }
+
+  } catch(err){
+    showMessage("Erreur lors de l'envoi. Vérifiez votre connexion.","err");
+    console.error(err);
+    startCooldown();
+  } finally{
+    isSubmitting=false; setLoading(false);
+  }
+});
+
+function startCooldown(){
+  let remaining=ANTISPAM_DELAY;
+  submitBtn.disabled=true;
+  submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
+  cooldownTimer=setInterval(()=>{
+    remaining--;
+    if(remaining>0) submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
+    else{
+      clearInterval(cooldownTimer);
+      submitBtn.disabled=false;
+      submitBtn.innerHTML=`<span>Envoyer</span>`;
+    }
+  },1000);
+}
+</script>
+
