@@ -108,6 +108,23 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   font-weight:700;
   color:var(--primary);
 }
+  
+.plane-depart, .plane-arrive {
+  font-size: 32px;
+  display: block;
+  text-align: center;
+  margin-bottom: 8px;
+  color: var(--secondary);
+}
+
+.plane-depart {
+  transform: rotate(-15deg);
+}
+
+.plane-arrive {
+  transform: rotate(15deg);
+}
+
 
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
@@ -173,13 +190,11 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       <div class="event-info">
         <div class="left">
           <span class="material-icons plane-depart">flight_takeoff</span>
-          <p></p>
           <p>Salle des fêtes d’Amanzé</p>
           <p>04 Avril 2026</p>
           <p>12:00</p>
         </div>
         <div class="right">
-          <p></p>
           <p>La retraite</p>
           <p>?</p>
         </div>
@@ -335,3 +350,4 @@ function startCooldown(){
 </script>
 </body>
 </html>
+
