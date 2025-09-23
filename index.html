@@ -55,15 +55,27 @@ label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
   display:flex;
   gap:16px;
   flex-wrap:wrap;
-  align-items:stretch;
+  align-items:stretch; /* force colonnes même hauteur */
 }
 .form-left,.form-right{
   flex:1 1 250px;
   display:flex;
   flex-direction:column;
 }
-.form-left{padding-right:16px;position:relative;}
-.form-left::after{content:"";position:absolute;top:0;right:0;width:2px;height:100%;background:#D4D4D4;box-shadow: 1px 0 4px rgba(0,0,0,0.1);}
+.form-left{
+  padding-right:16px;
+  position:relative;
+}
+.form-left::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  width:2px;
+  height:100%;
+  background:#D4D4D4;
+  box-shadow: 1px 0 4px rgba(0,0,0,0.1);
+}
 input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
 input:focus-visible,select:focus-visible{outline:3px solid var(--secondary);outline-offset:2px;}
 button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:600;margin-top:24px;transition:transform 0.15s, background 0.3s;font-size:1.1rem;}
@@ -74,14 +86,14 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
 
-/* Colonne droite moderne avec blocs côte à côte */
+/* Colonne droite moderne */
 .form-right{
   background: linear-gradient(180deg,#fff,#f0f8ff);
   border-radius:16px;
   padding:20px;
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
+  justify-content:center; /* centre verticalement */
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   font-family: 'Montserrat', sans-serif;
 }
@@ -89,10 +101,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   display:flex;
   justify-content:space-between;
   width:100%;
-  background:#fefefe;
-  border-radius:12px;
-  padding:20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  gap:12px;
 }
 .flight-subsection{
   flex:1;
@@ -118,9 +127,15 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   font-weight:700;
   color:var(--primary);
 }
+
+/* Responsive */
 @media(max-width:640px){
-  .form-columns{flex-direction:column;gap:8px;}
-  .form-left::after{top:auto;bottom:0;left:0;right:0;width:100%;height:2px;background:#D4D4D4;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin:16px 0;}
+  .form-columns{flex-direction:column;gap:16px;}
+  .form-left::after{
+    top:auto;bottom:0;left:0;right:0;width:100%;height:2px;background:#D4D4D4;
+    box-shadow:0 1px 4px rgba(0,0,0,0.1);
+    margin:16px 0;
+  }
   .flight-card{flex-direction:column; gap:12px;}
 }
 </style>
@@ -170,7 +185,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite moderne côte à côte -->
+    <!-- Colonne droite -->
     <div class="form-right">
       <div class="flight-card">
         <div class="flight-subsection">
@@ -276,9 +291,6 @@ form.addEventListener("submit", async e=>{
   const email=document.getElementById("email").value.trim();
   const participation=document.getElementById("participation").value;
   const nb_personnes=document.getElementById("nb_personnes").value;
-  const hp=(document.getElementById("hp")?.value||"").trim();
-
-  if(hp){ showMessage("Merci !","ok"); return; }
 
   isSubmitting=true; setLoading(true);
   const params=new URLSearchParams(new FormData(form));
@@ -288,55 +300,26 @@ form.addEventListener("submit", async e=>{
     const text=await res.text();
 
     if(res.ok){
-      if(/^OK/i.test(text)){
-        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok");
-        launchConfetti();
-      } else if(/^UPDATED/i.test(text)){
-        showMessage(`Vos informations ont été mises à jour avec succès, ${prenom} ${nom} ! ✏️`,"ok");
-      } else if(/^NO_CHANGE/i.test(text)){
-        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn");
-      } else {
-        showMessage(`Erreur serveur : ${text}`,"err");
-      }
-
+      showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok");
       form.reset();
       fields.forEach(id=>localStorage.removeItem(id));
-
       if(LOCK_AFTER_SUCCESS){
         submitBtn.disabled=true;
         submitBtn.innerHTML=`<span>✔ Envoyé</span>`;
         submitBtn.style.backgroundColor="#999";
         submitBtn.style.cursor="not-allowed";
-      } else startCooldown();
-
+      }
     } else {
       showMessage(`Erreur lors de l'envoi. ${text}`,"err");
-      startCooldown();
     }
 
   } catch(err){
     showMessage("Erreur lors de l'envoi. Vérifiez votre connexion.","err");
     console.error(err);
-    startCooldown();
   } finally{
     isSubmitting=false; setLoading(false);
   }
 });
-
-function startCooldown(){
-  let remaining=ANTISPAM_DELAY;
-  submitBtn.disabled=true;
-  submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
-  cooldownTimer=setInterval(()=>{
-    remaining--;
-    if(remaining>0) submitBtn.innerHTML=`⏳ Attendez ${remaining}s`;
-    else{
-      clearInterval(cooldownTimer);
-      submitBtn.disabled=false;
-      submitBtn.innerHTML=`<span>Envoyer</span>`;
-    }
-  },1000);
-}
 </script>
 
 </body>
