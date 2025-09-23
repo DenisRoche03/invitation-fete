@@ -73,7 +73,8 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon{position: relative;margin-top:16px;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
-/* Colonne droite moderne */
+
+/* Colonne droite moderne simplifiée */
 .form-right{
   background: linear-gradient(180deg,#fff,#f0f8ff);
   border-radius:16px;
@@ -87,39 +88,26 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 }
 .flight-card{
   display:flex;
-  justify-content:space-between;
-  align-items:stretch;
-  width:100%;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   gap:12px;
   background:#fefefe;
   border-radius:12px;
-  padding:16px;
+  padding:20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  position: relative;
-}
-.flight-card::before{
-  content:"";
-  position:absolute;
-  left:-10px;
-  top:0;
-  bottom:0;
-  width:20px;
-  border-radius:50%;
-  background:#f5f5f5;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+  width:100%;
 }
 .flight-section{
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
-  flex:1;
-  justify-content:center;
+  gap:8px;
 }
 .plane-icon{
   font-size:36px;
   color: var(--secondary);
-  margin-bottom:6px;
 }
 .location{
   font-weight:600;
@@ -136,7 +124,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   font-size:1.4rem;
   font-weight:700;
   color:var(--primary);
-  font-family: 'Montserrat', sans-serif;
 }
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
@@ -189,19 +176,17 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite moderne -->
-    <div class="form-right">     
-      <div class="flight-section left">
-        <span class="material-icons plane-icon">flight_takeoff</span>
-        <p class="location">Amanzé</p>
-        <p class="date">04 Avril 2026</p>
-        <p class="time">12:00</p>
-      </div>
-      <div class="flight-section right">
-        <span class="material-icons plane-icon">flight_land</span>
-        <p class="location">La retraite</p>
-        <p class="date">?</p>
-        <p class="time">12:00</p>
+    <!-- Colonne droite simplifiée -->
+    <div class="form-right">
+      <div class="flight-card">
+        <div class="flight-section">
+          <span class="material-icons plane-icon">flight_takeoff</span>
+          <p class="location">Salle des fêtes d’Amanzé</p>
+          <p class="date">04 Avril 2026</p>
+          <p class="time">12:00</p>
+          <span class="material-icons plane-icon">flight_land</span>
+          <p class="location">La retraite</p>
+        </div>
       </div>
       <div class="flight-number">
         <span>AA1234</span>
@@ -213,7 +198,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 </form>
 </main>
 
-<!-- Script Google Sheets + anti-spam + confetti -->
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;
@@ -357,6 +341,3 @@ function startCooldown(){
 </script>
 </body>
 </html>
-
-
-
