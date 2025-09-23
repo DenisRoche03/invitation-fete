@@ -1,222 +1,267 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enregistrement - Air Arlette</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --primary:#408ABA;
-  --secondary:#00ADEF;
-  --bg:#F5F5F5;
-  --text:#333;
-  --btn:#FF4136;
-  --btn-hover:#e03e2d;
-}
-body{
-  margin:0;
-  font-family:'Montserrat',sans-serif;
-  background:var(--bg);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  min-height:100vh;
-}
-header{
-  width:100%;
-  background:var(--primary);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px 24px; padding-left:34px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  color:#fff;
-}
-header img{height:50px;margin-left:10px;object-fit:contain;}
-.header-right{display:flex;align-items:center;gap:16px;font-size:0.95rem;font-weight:600;}
-.lang-flag{display:flex;align-items:center;gap:4px;}
-.lang-flag img{height:16px;width:24px;object-fit:cover;border-radius:2px;}
-.icon-conn{display:flex;align-items:center;gap:4px;}
-.icon-conn .material-icons{vertical-align: middle;margin-right:4px;font-size:20px;}
-main{flex:1; display:flex; align-items:center; justify-content:center;width:100%;padding:24px 16px; min-height: calc(100vh - 80px);}
-form.boarding-pass{
-  background:#fff;
-  border-radius:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  width:100%; max-width:900px;
-  padding:32px; position:relative;
-  border-top:6px solid var(--secondary);
-}
-form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;letter-spacing:1px;}
-label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
-.form-columns{
-  display:flex;
-  gap:16px;
-  flex-wrap:wrap;
-  align-items:stretch; /* colonnes même hauteur */
-}
-.form-left,.form-right{
-  flex:1 1 250px;
-  display:flex;
-  flex-direction:column;
-}
-.form-left{
-  padding-right:40px; /* espace avec la colonne droite */
-  position:relative;
-}
-.form-left::after{
-  content:"";
-  position:absolute;
-  top:0;
-  right:0;
-  width:2px;
-  height:100%;
-  background:#D4D4D4;
-  box-shadow: 1px 0 4px rgba(0,0,0,0.1);
-}
-input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
-input:focus-visible,select:focus-visible{outline:3px solid var(--secondary);outline-offset:2px;}
-button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:600;margin-top:24px;transition:transform 0.15s, background 0.3s;font-size:1.1rem;}
-button:hover{background:var(--btn-hover);}
-button:active{transform:scale(0.96);}
-button[disabled]{opacity:.65;cursor:not-allowed;}
-.input-icon{position: relative;margin-top:16px;}
-.input-icon input{padding-left:36px;}
-.input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulaire RSVP - Air Arlette</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-/* Colonne droite moderne */
-.form-right{
-  background: linear-gradient(180deg,#fff,#f0f8ff);
-  border-radius:16px;
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center; /* centre verticalement */
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  font-family: 'Montserrat', sans-serif;
-}
-.flight-card{
-  display:flex;
-  justify-content:space-between;
-  width:100%;
-  gap:12px;
-}
-.flight-subsection{
-  flex:1;
-  text-align:center;
-}
-.plane-icon{
-  font-size:36px;
-  color: var(--secondary);
-}
-.location{
-  font-weight:600;
-  font-size:1rem;
-  color: var(--text);
-}
-.date, .time{
-  font-size:0.9rem;
-  color:#555;
-}
-.flight-number{
-  text-align:center;
-  margin-top:20px;
-  font-size:1.4rem;
-  font-weight:700;
-  color:var(--primary);
-}
+    .form-container {
+      display: flex;
+      gap: 32px;
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 900px;
+      width: 100%;
+    }
 
-/* Responsive */
-@media(max-width:640px){
-  .form-columns{
-    flex-direction:column;
-    gap:16px;
-  }
-  .form-left::after{
-    display:none; /* supprime le trait */
-  }
-  .form-left{
-    padding-right:0;
-    margin-bottom:16px; /* espace entre colonnes */
-  }
-  .flight-card{flex-direction:column; gap:12px;}
-}
-</style>
+    .form-columns {
+      display: flex;
+      flex: 1;
+      gap: 32px;
+    }
+
+    .form-left, .form-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-left {
+      padding-right: 32px;
+      position: relative;
+    }
+
+    .form-left::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 2px;
+      height: 100%;
+      background: #e0e0e0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #007BFF;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    /* Zone résultat */
+    #result.ok { color: green; margin-top: 12px; }
+    #result.err { color: red; margin-top: 12px; }
+
+    /* Colonne de droite */
+    .event-details {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .detail-box {
+      flex: 1;
+      background: #f0f4ff;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 140px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+    }
+
+    .detail-box h3 {
+      margin: 8px 0 4px;
+      font-size: 16px;
+      color: #222;
+      font-weight: 600;
+    }
+
+    .detail-box p {
+      margin: 2px 0;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .flight-number {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #111;
+    }
+
+    /* Icônes SVG animées */
+    .icon {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 6px;
+      fill: url(#grad);
+    }
+
+    svg defs linearGradient {
+      animation: gradientShift 5s ease infinite alternate;
+    }
+
+    @keyframes gradientShift {
+      0% { stop-color: #007BFF; }
+      100% { stop-color: #00C6FF; }
+    }
+
+    /* Spinner animé */
+    .spinner {
+      display:inline-block;
+      width:16px;
+      height:16px;
+      border:2px solid #fff;
+      border-top-color: transparent;
+      border-radius:50%;
+      animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media(max-width:640px){
+      .form-columns {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-left::after {
+        display:none;
+      }
+      .form-left {
+        padding-right:0;
+        margin-bottom:16px;
+      }
+      .event-details {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
-  <div class="header-right">
-    <div class="lang-flag">
-      <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" alt="France">
-      <span>France – FR</span>
-    </div>
-    <div class="icon-conn">
-      <span class="material-icons">person</span> <span>Se connecter</span>
-    </div>
-  </div>
-</header>
-
-<main>
-<form id="invitationForm" class="boarding-pass" novalidate>
-  <h1>Enregistrement à la fête</h1>
-  <div class="form-columns">
-    <!-- Colonne gauche -->
-    <div class="form-left">
-      <div class="input-icon">
-        <span class="material-icons">person</span>
-        <input type="text" id="prenom" name="prenom" placeholder="Prénom" required />
-      </div>
-      <div class="input-icon">
-        <span class="material-icons">badge</span>
-        <input type="text" id="nom" name="nom" placeholder="Nom" required />
-      </div>
-      <div class="input-icon">
-        <span class="material-icons">email</span>
-        <input type="email" id="email" name="email" placeholder="Adresse mail" required />
-      </div>
-      <label for="participation">Participez-vous ?</label>
-      <select id="participation" name="participation" required>
-        <option value="">-- Choisir --</option>
-        <option value="oui">Oui</option>
-        <option value="non">Non</option>
-      </select>
-      <div class="input-icon">
-        <span class="material-icons">groups</span>
-        <input type="number" id="nb_personnes" name="nb_personnes" min="1" value="1" placeholder="Nb de personnes" required />
-      </div>
-    </div>
-
-    <!-- Colonne droite -->
-    <div class="form-right">
-      <div class="flight-card">
-        <div class="flight-subsection">
-          <span class="material-icons plane-icon">flight_takeoff</span>
-          <p class="location">Amanzé</p>
-          <p class="date">04 Avril 2026</p>
-          <p class="time">12:00</p>
+<div class="form-container">
+  <form id="rsvp-form">
+    <div class="form-columns">
+      <!-- Colonne gauche -->
+      <div class="form-left">
+        <div class="form-group">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" name="prenom" required>
         </div>
-        <div class="flight-subsection">
-          <span class="material-icons plane-icon">flight_land</span>
-          <p class="location">La retraite</p>
-          <p class="date">?</p>
-          <p class="time">12:00</p>
+        <div class="form-group">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" name="nom" required>
         </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="participation">Participation</label>
+          <select id="participation" name="participation" required>
+            <option value="">Choisir…</option>
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="nb_personnes">Nombre de personnes</label>
+          <input type="number" id="nb_personnes" name="nb_personnes" min="1" required>
+        </div>
+        <button type="submit" id="submitBtn">
+          <span>Envoyer</span>
+        </button>
+        <div id="result"></div>
       </div>
-      <div class="flight-number">
-        <span>AA1234</span>
+
+      <!-- Colonne droite -->
+      <div class="form-right">
+        <svg width="0" height="0">
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#007BFF">
+                <animate attributeName="stop-color" values="#007BFF;#00C6FF;#007BFF" dur="5s" repeatCount="indefinite"/>
+              </stop>
+              <stop offset="100%" stop-color="#00C6FF">
+                <animate attributeName="stop-color" values="#00C6FF;#007BFF;#00C6FF" dur="5s" repeatCount="indefinite"/>
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div class="event-details">
+          <div class="detail-box">
+            <!-- SVG avion décollage -->
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M2.5 19h19v2h-19v-2zm4.2-9.6l2.5.7 4.3-6.2 2.4.7-3.3 8.2 6.1 1.7c1.6.5 2.9 1.7 3.3 3.3l.3 1.2-19-5.2.5-1.8c.4-1.6 2.1-2.6 3.9-2.1z"/>
+            </svg>
+            <h3>Salle des fêtes d’Amanzé</h3>
+            <p>04 Avril 2026</p>
+            <p>12:00</p>
+          </div>
+          <div class="detail-box">
+            <!-- SVG avion atterrissage -->
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M2.5 19h19v2h-19v-2zm16.9-6.7l-6.5-1.9-2.9-8.4-2.4.7 1.9 8.6-4.4-1.2-.6 2.1 16.6 4.5.6-2.2c.5-1.7-.5-3.5-2.3-4.2z"/>
+            </svg>
+            <h3>La retraite</h3>
+            <p>Arrivée</p>
+          </div>
+        </div>
+        <div class="flight-number">Vol n° AF7426</div>
       </div>
     </div>
-  </div>
-
-  <button type="submit" id="submitBtn"><span>Envoyer</span></button>
-</form>
-</main>
-
-
+  </form>
+</div>
 <script>
 // --- Script Google Sheets + anti-spam + confetti ---
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
@@ -329,5 +374,6 @@ form.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
