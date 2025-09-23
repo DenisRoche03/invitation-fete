@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enregistrement - Air Arlette</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --primary:#408ABA;
@@ -16,7 +17,7 @@
 }
 body{
   margin:0;
-  font-family:Arial,sans-serif;
+  font-family:'Montserrat',sans-serif;
   background:var(--bg);
   display:flex;
   flex-direction:column;
@@ -54,7 +55,7 @@ label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
   display:flex;
   gap:16px;
   flex-wrap:wrap;
-  align-items:stretch; /* même hauteur */
+  align-items:stretch;
 }
 .form-left,.form-right{
   flex:1 1 250px;
@@ -63,15 +64,6 @@ label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
 }
 .form-left{padding-right:16px;position:relative;}
 .form-left::after{content:"";position:absolute;top:0;right:0;width:2px;height:100%;background:#D4D4D4;box-shadow: 1px 0 4px rgba(0,0,0,0.1);}
-.form-right{
-  padding:16px;
-  justify-content:space-between;
-  background:linear-gradient(180deg,#f9f9f9,#fff);
-  border-radius:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-  display:flex;
-  flex-direction:column;
-}
 input, select, button{width:100%;padding:14px;margin-top:8px;border-radius:6px;border:1px solid #ccc;font-size:1rem;box-sizing:border-box;}
 input:focus-visible,select:focus-visible{outline:3px solid var(--secondary);outline-offset:2px;}
 button{background:var(--btn);color:#fff;border:none;cursor:pointer;font-weight:600;margin-top:24px;transition:transform 0.15s, background 0.3s;font-size:1.1rem;}
@@ -81,30 +73,70 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon{position: relative;margin-top:16px;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
-/* Colonne droite style billet avion */
-.event-info{
+/* Colonne droite moderne */
+.form-right{
+  background: linear-gradient(180deg,#fff,#f0f8ff);
+  border-radius:16px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  position: relative;
+  font-family: 'Montserrat', sans-serif;
+}
+.flight-card{
   display:flex;
   justify-content:space-between;
+  align-items:stretch;
   width:100%;
-  margin-bottom:20px;
+  gap:12px;
+  background:#fefefe;
+  border-radius:12px;
+  padding:16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
 }
-.event-info .left, .event-info .right{
+.flight-card::before{
+  content:"";
+  position:absolute;
+  left:-10px;
+  top:0;
+  bottom:0;
+  width:20px;
+  border-radius:50%;
+  background:#f5f5f5;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+.flight-section{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
+  text-align:center;
+  flex:1;
+  justify-content:center;
 }
-.plane-depart, .plane-arrive{
-  font-size:32px;
-  color:var(--secondary);
+.plane-icon{
+  font-size:36px;
+  color: var(--secondary);
+  margin-bottom:6px;
 }
-.plane-depart{transform:rotate(-15deg);}
-.plane-arrive{transform:rotate(15deg);}
+.location{
+  font-weight:600;
+  font-size:1rem;
+  color: var(--text);
+}
+.date, .time{
+  font-size:0.9rem;
+  color:#555;
+}
 .flight-number{
   text-align:center;
-  font-size:1.2rem;
+  margin-top:20px;
+  font-size:1.4rem;
   font-weight:700;
   color:var(--primary);
+  font-family: 'Montserrat', sans-serif;
 }
 @media(max-width:640px){
   .form-columns{flex-direction:column;gap:8px;}
@@ -157,23 +189,23 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite style billet avion -->
+    <!-- Colonne droite moderne -->
     <div class="form-right">
-      <div class="event-info">
-        <div class="left">
-          <span class="material-icons plane-depart">flight_takeoff</span>
-          <p>Salle des fêtes d’Amanzé</p>
-          <p>04 Avril 2026</p>
-          <p>12:00</p>
+      <div class="flight-card">
+        <div class="flight-section left">
+          <span class="material-icons plane-icon">flight_takeoff</span>
+          <p class="location">Salle des fêtes d’Amanzé</p>
+          <p class="date">04 Avril 2026</p>
+          <p class="time">12:00</p>
         </div>
-        <div class="right">
-          <span class="material-icons plane-arrive">flight_land</span>
-          <p>La retraite</p>
-          <p>?</p>
+        <div class="flight-section right">
+          <span class="material-icons plane-icon">flight_land</span>
+          <p class="location">La retraite</p>
+          <p class="date">?</p>
         </div>
       </div>
       <div class="flight-number">
-        <span>Numéro de vol : <strong>AA1234</strong></span>
+        <span>AA1234</span>
       </div>
     </div>
   </div>
@@ -182,8 +214,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 </form>
 </main>
 
-</body>
-</html>
+<!-- Script Google Sheets + anti-spam + confetti -->
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;
@@ -191,10 +222,7 @@ const ANTISPAM_DELAY = 30;
 
 const form = document.getElementById("invitationForm");
 const submitBtn = document.getElementById("submitBtn");
-
 const fields = ["prenom","nom","email","participation","nb_personnes"];
-
-// Récupération locale des valeurs
 fields.forEach(id=>{
   const el=document.getElementById(id);
   const saved=localStorage.getItem(id);
@@ -328,4 +356,5 @@ function startCooldown(){
   },1000);
 }
 </script>
-
+</body>
+</html>
