@@ -29,11 +29,11 @@ header{
   background:var(--primary);
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  padding:12px 24px; padding-left:34px;
+  justify-content:center;
+  padding:12px 24px;
   color:#fff;
 }
-header img{height:50px;margin-left:10px;object-fit:contain;}
+header img{height:50px;object-fit:contain;}
 main{flex:1; display:flex; align-items:center; justify-content:center;width:100%;padding:24px 16px; min-height: calc(100vh - 80px);}
 form.boarding-pass{
   background:#fff;
@@ -87,7 +87,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   flex-direction:column;
   justify-content:center;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  font-family: 'Montserrat', sans-serif;
 }
 .flight-card{
   display:flex;
@@ -141,7 +140,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 </head>
 <body>
 <header>
-  <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
+  <img src="https://raw.githubusercontent.com/DenisRoche03/invitation-fete/main/Logo/AirArletteBleu.png" alt="Logo Air Arlette">
 </header>
 
 <main>
@@ -198,7 +197,7 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 </main>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
+const SHEET_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // remplace par ton URL
 const LOCK_AFTER_SUCCESS = true;
 const ANTISPAM_DELAY = 30; // sec
 const form = document.getElementById("invitationForm");
@@ -270,12 +269,19 @@ form.addEventListener("submit", e=>{
   e.preventDefault();
   if(isSubmitting) return;
   if(!form.reportValidity()) return;
-  const prenom=document.getElementById("prenom").value.trim();
-  const nom=document.getElementById("nom").value.trim();
-  const email=document.getElementById("email").value.trim();
-  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showMessage("Adresse e-mail invalide.","err"); return; }
 
-  isSubmitting=true;
+  const prenom = document.getElementById("prenom").value.trim();
+  const nom = document.getElementById("nom").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const participation = document.getElementById("participation").value;
+  const nb_personnes = document.getElementById("nb_personnes").value;
+
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showMessage("Adresse e-mail invalide.","err");
+    return;
+  }
+
+  isSubmitting = true;
   setLoading(true);
   showMessage("");
 
@@ -284,25 +290,51 @@ form.addEventListener("submit", e=>{
   hp.type="text"; hp.name="hp"; hp.value=""; hp.style.display="none";
   form.appendChild(hp);
 
-  // Envoi classique
+  // Envoi au script
   const params = new FormData(form);
-  fetch(SHEET_URL,{method:"POST",body:params})
-  .then(res=>res.text())
-  .then(text=>{
-    if(/^OK/i.test(text)){ showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok"); launchConfetti(); }
-    else if(/^UPDATED/i.test(text)){ showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`,"ok"); launchConfetti(); }
-    else if(/^NO_CHANGE/i.test(text)){ showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn"); }
-    else if(/^SPAM_DETECTED/i.test(text)){ showMessage("Spam détecté.","err"); }
-    else if(/^MISSING_FIELDS/i.test(text)){ showMessage("Veuillez compléter tous les champs.","err"); }
-    else { showMessage("Réponse serveur : "+text,"warn"); }
+  fetch(SHEET_URL, {method:"POST", body:params})
+    .then(res => res.text())
+    .then(text => {
+      // Messages personnalisés
+      if(/^OK/i.test(text)){
+        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`, "ok");
+        launchConfetti();
+      }
+      else if(/^UPDATED/i.test(text)){
+        showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`, "ok");
+        launchConfetti();
+      }
+      else if(/^NO_CHANGE/i.test(text)){
+        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`, "warn");
+      }
+      else if(/^SPAM_DETECTED/i.test(text)){
+        showMessage("Spam détecté.","err");
+      }
+      else if(/^MISSING_FIELDS/i.test(text)){
+        showMessage("Veuillez compléter tous les champs.","err");
+      }
+      else {
+        showMessage("Réponse serveur : " + text,"warn");
+      }
 
-    form.reset();
-    fields.forEach(f=>localStorage.removeItem(f));
-    if(LOCK_AFTER_SUCCESS){ submitBtn.disabled=true; submitBtn.innerHTML="<span>✔ Envoyé</span>"; submitBtn.style.backgroundColor="#999"; submitBtn.style.cursor="not-allowed"; }
-    else{ startCooldown(); }
-  })
-  .catch(err=>{ console.error(err); showMessage("Erreur réseau.","err"); startCooldown(); })
-  .finally(()=>{ isSubmitting=false; setLoading(false); });
+      form.reset();
+      fields.forEach(f => localStorage.removeItem(f));
+
+      if(LOCK_AFTER_SUCCESS){
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "<span>✔ Envoyé</span>";
+        submitBtn.style.backgroundColor="#999";
+        submitBtn.style.cursor="not-allowed";
+      } else {
+        startCooldown();
+      }
+    })
+    .catch(err=>{
+      console.error(err);
+      showMessage("Erreur réseau.","err");
+      startCooldown();
+    })
+    .finally(()=>{ isSubmitting=false; setLoading(false); });
 });
 </script>
 </body>
