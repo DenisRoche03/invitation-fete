@@ -31,15 +31,9 @@ header{
   align-items:center;
   justify-content:space-between;
   padding:12px 24px; padding-left:34px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
   color:#fff;
 }
 header img{height:50px;margin-left:10px;object-fit:contain;}
-.header-right{display:flex;align-items:center;gap:16px;font-size:0.95rem;font-weight:600;}
-.lang-flag{display:flex;align-items:center;gap:4px;}
-.lang-flag img{height:16px;width:24px;object-fit:cover;border-radius:2px;}
-.icon-conn{display:flex;align-items:center;gap:4px;}
-.icon-conn .material-icons{vertical-align: middle;margin-right:4px;font-size:20px;}
 main{flex:1; display:flex; align-items:center; justify-content:center;width:100%;padding:24px 16px; min-height: calc(100vh - 80px);}
 form.boarding-pass{
   background:#fff;
@@ -49,7 +43,7 @@ form.boarding-pass{
   padding:32px; position:relative;
   border-top:6px solid var(--secondary);
 }
-form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;letter-spacing:1px;}
+form h1{text-align:center;color:var(--primary);margin-bottom:24px;font-size:1.5rem;}
 label{display:block;margin-top:16px;font-weight:600;color:var(--text);}
 .form-columns{
   display:flex;
@@ -85,8 +79,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 .input-icon{position: relative;margin-top:16px;}
 .input-icon input{padding-left:36px;}
 .input-icon .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#333;font-size:20px;}
-
-/* Colonne droite */
 .form-right{
   background: linear-gradient(180deg,#fff,#f0f8ff);
   border-radius:16px;
@@ -127,8 +119,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   font-weight:700;
   color:var(--primary);
 }
-
-/* Confetti animation */
 .confetti {
   position: fixed;
   top: -10px;
@@ -136,55 +126,28 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
   opacity: 0.9;
   animation: fall linear forwards;
 }
-
 @keyframes fall {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) translateX(var(--dx, 0)) rotate(720deg);
-    opacity: 0;
-  }
+  0% {transform: translateY(0) translateX(0) rotate(0deg); opacity: 1;}
+  100% {transform: translateY(100vh) translateX(var(--dx, 0)) rotate(720deg); opacity: 0;}
 }
-
-/* Responsive */
+#result{margin-top:12px;font-weight:600;text-align:center;}
 @media(max-width:640px){
-  .form-columns{
-    flex-direction:column;
-    gap:16px;
-  }
-  .form-left::after{
-    display:none;
-  }
-  .form-left{
-    padding-right:0;
-    margin-bottom:16px;
-  }
+  .form-columns{flex-direction:column;gap:16px;}
+  .form-left::after{display:none;}
+  .form-left{padding-right:0;margin-bottom:16px;}
   .flight-card{flex-direction:column; gap:12px;}
 }
 </style>
 </head>
 <body>
-
 <header>
   <img src="Logo/AirArletteBleu.png" alt="Logo Air Arlette">
-  <div class="header-right">
-    <div class="lang-flag">
-      <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" alt="France">
-      <span>France – FR</span>
-    </div>
-    <div class="icon-conn">
-      <span class="material-icons">person</span> <span>Se connecter</span>
-    </div>
-  </div>
 </header>
 
 <main>
 <form id="invitationForm" class="boarding-pass" novalidate>
   <h1>Enregistrement à la fête</h1>
   <div class="form-columns">
-    <!-- Colonne gauche -->
     <div class="form-left">
       <div class="input-icon">
         <span class="material-icons">person</span>
@@ -210,7 +173,6 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- Colonne droite -->
     <div class="form-right">
       <div class="flight-card">
         <div class="flight-subsection">
@@ -226,200 +188,122 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
           <p class="time">12:00</p>
         </div>
       </div>
-      <div class="flight-number">
-        <span>AA1234</span>
-      </div>
+      <div class="flight-number"><span>AA1234</span></div>
     </div>
   </div>
 
   <button type="submit" id="submitBtn"><span>Envoyer</span></button>
+  <p id="result"></p>
 </form>
 </main>
 
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
 const LOCK_AFTER_SUCCESS = true;
-const ANTISPAM_DELAY = 30; // secondes
-
+const ANTISPAM_DELAY = 30; // sec
 const form = document.getElementById("invitationForm");
 const submitBtn = document.getElementById("submitBtn");
-const fields = ["prenom", "nom", "email", "participation", "nb_personnes"];
-
+const fields = ["prenom","nom","email","participation","nb_personnes"];
 let isSubmitting = false;
 let cooldownTimer = null;
 
-/* --- localStorage sauvegarde --- */
+/* Sauvegarde locale */
 fields.forEach(id => {
   const el = document.getElementById(id);
-  if (!el) return;
+  if(!el) return;
   const saved = localStorage.getItem(id);
-  if (saved) el.value = saved;
+  if(saved) el.value = saved;
   el.addEventListener("input", e => localStorage.setItem(id, e.target.value));
 });
 
-/* --- résultat et loader --- */
-let result = document.getElementById("result");
-if (!result) {
-  result = document.createElement("p");
-  result.id = "result";
-  result.setAttribute("role", "status");
-  result.setAttribute("aria-live", "polite");
-  result.style.textAlign = "center";
-  result.style.fontWeight = "600";
-  form.appendChild(result);
-}
-
-let loader = document.getElementById("loader");
-if (!loader) {
-  loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.display = "none";
-  loader.style.textAlign = "center";
-  loader.style.marginTop = "8px";
-  loader.innerHTML = "";
-  form.appendChild(loader);
-}
-
-/* --- Confetti --- */
-function launchConfetti(count = 40) {
-  for (let i = 0; i < count; i++) {
-    const c = document.createElement("div");
-    c.className = "confetti";
-    const hue = Math.floor(Math.random() * 360);
-    const size = 6 + Math.random() * 10;
-    const left = Math.random() * 100;
-    const dx = (Math.random() * 200 - 100) + "px";
-    const dur = (2 + Math.random() * 2).toFixed(2) + "s";
-    c.style.backgroundColor = `hsl(${hue} 90% 55%)`;
-    c.style.left = left + "vw";
-    c.style.width = c.style.height = size + "px";
-    c.style.setProperty("--dx", dx);
-    c.style.animationDuration = dur;
+/* Confetti */
+function launchConfetti(count=40){
+  for(let i=0;i<count;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    const hue=Math.floor(Math.random()*360);
+    const size=6+Math.random()*10;
+    const left=Math.random()*100;
+    const dx=(Math.random()*200-100)+"px";
+    const dur=(2+Math.random()*2).toFixed(2)+"s";
+    c.style.backgroundColor=`hsl(${hue},90%,55%)`;
+    c.style.left=left+"vw";
+    c.style.width=c.style.height=size+"px";
+    c.style.setProperty("--dx",dx);
+    c.style.animationDuration=dur;
     document.body.appendChild(c);
-    setTimeout(() => c.remove(), parseFloat(dur) * 1000);
+    setTimeout(()=>c.remove(),parseFloat(dur)*1000);
   }
 }
 
-/* --- Messages --- */
-function showMessage(msg, cls) {
-  result.textContent = msg;
-  result.className = cls || "";
+/* Messages */
+const result = document.getElementById("result");
+function showMessage(msg, cls){ result.textContent=msg; result.className=cls||""; }
+function setLoading(state){
+  if(state){ submitBtn.disabled=true; submitBtn.innerHTML="<span>Envoi…</span>"; }
+  else { submitBtn.disabled=false; submitBtn.innerHTML="<span>Envoyer</span>"; }
 }
 
-/* --- Loader --- */
-function setLoading(loading) {
-  if (loading) {
-    loader.style.display = "block";
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span>Envoi…</span>`;
-  } else {
-    loader.style.display = "none";
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = `<span>Envoyer</span>`;
-  }
-}
-
-/* --- Cooldown anti-spam --- */
-function updateCooldown() {
-  clearInterval(cooldownTimer);
-  const until = parseInt(localStorage.getItem("cooldown_until") || "0", 10);
-  if (!until || until <= Date.now()) {
-    localStorage.removeItem("cooldown_until");
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = `<span>Envoyer</span>`;
-    return;
-  }
-  submitBtn.disabled = true;
-
-  function tick() {
-    const rem = Math.ceil((until - Date.now()) / 1000);
-    if (rem > 0) {
-      submitBtn.innerHTML = `⏳ Attendez ${rem}s`;
-    } else {
-      clearInterval(cooldownTimer);
-      localStorage.removeItem("cooldown_until");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = `<span>Envoyer</span>`;
-    }
-  }
-
-  tick();
-  cooldownTimer = setInterval(tick, 1000);
-}
-
-function startCooldown() {
-  const until = Date.now() + ANTISPAM_DELAY * 1000;
-  localStorage.setItem("cooldown_until", until.toString());
+/* Cooldown */
+function startCooldown(){
+  const until = Date.now() + ANTISPAM_DELAY*1000;
+  localStorage.setItem("cooldown_until", until);
   updateCooldown();
 }
-
+function updateCooldown(){
+  clearInterval(cooldownTimer);
+  const until = parseInt(localStorage.getItem("cooldown_until")||0);
+  if(!until||until<=Date.now()){ localStorage.removeItem("cooldown_until"); submitBtn.disabled=false; submitBtn.innerHTML="<span>Envoyer</span>"; return; }
+  submitBtn.disabled=true;
+  function tick(){
+    const rem = Math.ceil((until-Date.now())/1000);
+    if(rem>0){ submitBtn.innerHTML=`⏳ Attendez ${rem}s`; }
+    else{ clearInterval(cooldownTimer); localStorage.removeItem("cooldown_until"); submitBtn.disabled=false; submitBtn.innerHTML="<span>Envoyer</span>"; }
+  }
+  tick();
+  cooldownTimer=setInterval(tick,1000);
+}
 updateCooldown();
 
-/* --- Submit Form --- */
-form.addEventListener("submit", async e => {
+/* Submit */
+form.addEventListener("submit", e=>{
   e.preventDefault();
-  if (isSubmitting) return;
-  if (!form.reportValidity()) return;
+  if(isSubmitting) return;
+  if(!form.reportValidity()) return;
+  const prenom=document.getElementById("prenom").value.trim();
+  const nom=document.getElementById("nom").value.trim();
+  const email=document.getElementById("email").value.trim();
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showMessage("Adresse e-mail invalide.","err"); return; }
 
-  const prenom = (document.getElementById("prenom")?.value || "").trim();
-  const nom = (document.getElementById("nom")?.value || "").trim();
-  const email = (document.getElementById("email")?.value || "").trim();
-
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showMessage("Adresse e-mail invalide.", "err");
-    return;
-  }
-
-  isSubmitting = true;
+  isSubmitting=true;
   setLoading(true);
-  showMessage("", "");
+  showMessage("");
 
-  const params = new URLSearchParams(new FormData(form));
+  // Honeypot
+  const hp = document.createElement("input");
+  hp.type="text"; hp.name="hp"; hp.value=""; hp.style.display="none";
+  form.appendChild(hp);
 
-  try {
-    const res = await fetch(SHEET_URL, { method: "POST", body: params });
-    const text = await res.text();
+  // Envoi classique
+  const params = new FormData(form);
+  fetch(SHEET_URL,{method:"POST",body:params})
+  .then(res=>res.text())
+  .then(text=>{
+    if(/^OK/i.test(text)){ showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`,"ok"); launchConfetti(); }
+    else if(/^UPDATED/i.test(text)){ showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`,"ok"); launchConfetti(); }
+    else if(/^NO_CHANGE/i.test(text)){ showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`,"warn"); }
+    else if(/^SPAM_DETECTED/i.test(text)){ showMessage("Spam détecté.","err"); }
+    else if(/^MISSING_FIELDS/i.test(text)){ showMessage("Veuillez compléter tous les champs.","err"); }
+    else { showMessage("Réponse serveur : "+text,"warn"); }
 
-    if (res.ok) {
-      if (/^OK/i.test(text)) {
-        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`, "ok");
-        launchConfetti();
-      } else if (/^UPDATED/i.test(text)) {
-        showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`, "ok");
-      } else if (/^NO_CHANGE/i.test(text)) {
-        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`, "warn");
-      } else {
-        showMessage(`Réponse serveur : ${text}`, "warn");
-      }
-
-      form.reset();
-      fields.forEach(id => localStorage.removeItem(id));
-
-      if (LOCK_AFTER_SUCCESS) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span>✔ Envoyé</span>`;
-        submitBtn.style.backgroundColor = "#999";
-        submitBtn.style.cursor = "not-allowed";
-      } else {
-        startCooldown();
-      }
-    } else {
-      showMessage(`Erreur lors de l'envoi (${res.status}). ${text}`, "err");
-      startCooldown();
-    }
-  } catch (err) {
-    console.error(err);
-    showMessage("Erreur réseau. Vérifiez votre connexion.", "err");
-    startCooldown();
-  } finally {
-    isSubmitting = false;
-    setLoading(false);
-  }
+    form.reset();
+    fields.forEach(f=>localStorage.removeItem(f));
+    if(LOCK_AFTER_SUCCESS){ submitBtn.disabled=true; submitBtn.innerHTML="<span>✔ Envoyé</span>"; submitBtn.style.backgroundColor="#999"; submitBtn.style.cursor="not-allowed"; }
+    else{ startCooldown(); }
+  })
+  .catch(err=>{ console.error(err); showMessage("Erreur réseau.","err"); startCooldown(); })
+  .finally(()=>{ isSubmitting=false; setLoading(false); });
 });
 </script>
 </body>
 </html>
-
-
-
-
