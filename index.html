@@ -238,122 +238,188 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
-const SECRET_TOKEN = "Retrait_Arlette";    // Token de sécurité
-<script>
-const SHEET_URL = "TON_URL_WEBAPP"; // Remplace par l'URL de ton Web App
-const SECRET_TOKEN = "@Retrait_Arlette";
-const LOCK_AFTER_SUCCESS = true; // Bloquer le bouton après succès
-const fields = ["prenom","nom","email","participation","nb_personnes"];
+const LOCK_AFTER_SUCCESS = true;
+const ANTISPAM_DELAY = 30; // secondes
 
 const form = document.getElementById("invitationForm");
 const submitBtn = document.getElementById("submitBtn");
+const fields = ["prenom", "nom", "email", "participation", "nb_personnes"];
 
-// Sauvegarde automatique des champs
+let isSubmitting = false;
+let cooldownTimer = null;
+
+/* --- localStorage sauvegarde --- */
 fields.forEach(id => {
-  const input = document.getElementById(id);
-  if(!input) return;
-  input.value = localStorage.getItem(id) || "";
-  input.addEventListener("input", ()=> localStorage.setItem(id, input.value));
+  const el = document.getElementById(id);
+  if (!el) return;
+  const saved = localStorage.getItem(id);
+  if (saved) el.value = saved;
+  el.addEventListener("input", e => localStorage.setItem(id, e.target.value));
 });
 
-// Ajout honeypot si absent
-if(!document.querySelector('input[name="hp"]')){
-  const hp = document.createElement("input");
-  hp.type = "text";
-  hp.name = "hp";
-  hp.style.position = "absolute";
-  hp.style.left = "-9999px";
-  form.appendChild(hp);
+/* --- résultat et loader --- */
+let result = document.getElementById("result");
+if (!result) {
+  result = document.createElement("p");
+  result.id = "result";
+  result.setAttribute("role", "status");
+  result.setAttribute("aria-live", "polite");
+  result.style.textAlign = "center";
+  result.style.fontWeight = "600";
+  form.appendChild(result);
 }
 
-// Affichage message
-let result = document.createElement("p");
-result.style.textAlign = "center";
-result.style.fontWeight = "600";
-form.appendChild(result);
+let loader = document.getElementById("loader");
+if (!loader) {
+  loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.display = "none";
+  loader.style.textAlign = "center";
+  loader.style.marginTop = "8px";
+  loader.innerHTML = "";
+  form.appendChild(loader);
+}
 
-function showMessage(msg, type){
+/* --- Confetti --- */
+function launchConfetti(count = 40) {
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    const hue = Math.floor(Math.random() * 360);
+    const size = 6 + Math.random() * 10;
+    const left = Math.random() * 100;
+    const dx = (Math.random() * 200 - 100) + "px";
+    const dur = (2 + Math.random() * 2).toFixed(2) + "s";
+    c.style.backgroundColor = `hsl(${hue} 90% 55%)`;
+    c.style.left = left + "vw";
+    c.style.width = c.style.height = size + "px";
+    c.style.setProperty("--dx", dx);
+    c.style.animationDuration = dur;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), parseFloat(dur) * 1000);
+  }
+}
+
+/* --- Messages --- */
+function showMessage(msg, cls) {
   result.textContent = msg;
-  result.className = type || "";
+  result.className = cls || "";
 }
 
-// Loading
-function setLoading(state){
-  if(state){
+/* --- Loader --- */
+function setLoading(loading) {
+  if (loading) {
+    loader.style.display = "block";
     submitBtn.disabled = true;
     submitBtn.innerHTML = `<span>Envoi…</span>`;
   } else {
+    loader.style.display = "none";
     submitBtn.disabled = false;
     submitBtn.innerHTML = `<span>Envoyer</span>`;
   }
 }
 
-form.addEventListener("submit", async e=>{
-  e.preventDefault();
-  if(!form.reportValidity()) return;
+/* --- Cooldown anti-spam --- */
+function updateCooldown() {
+  clearInterval(cooldownTimer);
+  const until = parseInt(localStorage.getItem("cooldown_until") || "0", 10);
+  if (!until || until <= Date.now()) {
+    localStorage.removeItem("cooldown_until");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<span>Envoyer</span>`;
+    return;
+  }
+  submitBtn.disabled = true;
 
+  function tick() {
+    const rem = Math.ceil((until - Date.now()) / 1000);
+    if (rem > 0) {
+      submitBtn.innerHTML = `⏳ Attendez ${rem}s`;
+    } else {
+      clearInterval(cooldownTimer);
+      localStorage.removeItem("cooldown_until");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Envoyer</span>`;
+    }
+  }
+
+  tick();
+  cooldownTimer = setInterval(tick, 1000);
+}
+
+function startCooldown() {
+  const until = Date.now() + ANTISPAM_DELAY * 1000;
+  localStorage.setItem("cooldown_until", until.toString());
+  updateCooldown();
+}
+
+updateCooldown();
+
+/* --- Submit Form --- */
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (isSubmitting) return;
+  if (!form.reportValidity()) return;
+
+  const prenom = (document.getElementById("prenom")?.value || "").trim();
+  const nom = (document.getElementById("nom")?.value || "").trim();
+  const email = (document.getElementById("email")?.value || "").trim();
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMessage("Adresse e-mail invalide.", "err");
+    return;
+  }
+
+  isSubmitting = true;
   setLoading(true);
   showMessage("", "");
 
-  // Crée FormData + ajoute token
   const params = new URLSearchParams(new FormData(form));
-  params.set("token", SECRET_TOKEN);
-  if(!params.has("hp")) params.set("hp","");
 
   try {
-    const res = await fetch(SHEET_URL, { method:"POST", body: params });
-    const json = await res.json().catch(async ()=> {
-      const txt = await res.text();
-      throw new Error("Réponse serveur invalide: "+txt);
-    });
+    const res = await fetch(SHEET_URL, { method: "POST", body: params });
+    const text = await res.text();
 
-    console.log("Réponse JSON:", json);
+    if (res.ok) {
+      if (/^OK/i.test(text)) {
+        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`, "ok");
+        launchConfetti();
+      } else if (/^UPDATED/i.test(text)) {
+        showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`, "ok");
+      } else if (/^NO_CHANGE/i.test(text)) {
+        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`, "warn");
+      } else {
+        showMessage(`Réponse serveur : ${text}`, "warn");
+      }
 
-    switch(json.status){
-      case "OK":
-        showMessage("Merci, votre enregistrement est confirmé 🎊","ok");
-        break;
-      case "UPDATED":
-        showMessage("Vos informations ont été mises à jour.","ok");
-        break;
-      case "NO_CHANGE":
-        showMessage("Aucune modification détectée.","warn");
-        break;
-      case "UNAUTHORIZED":
-        showMessage("Token incorrect. Requête non autorisée.","err");
-        break;
-      case "MISSING_FIELDS":
-        showMessage("Veuillez remplir tous les champs.","err");
-        break;
-      case "SPAM_DETECTED":
-        showMessage("Spam détecté.","err");
-        break;
-      default:
-        showMessage("Réponse serveur: "+JSON.stringify(json),"warn");
-    }
-
-    // Reset + localStorage si succès
-    if(json.status==="OK" || json.status==="UPDATED"){
       form.reset();
-      fields.forEach(id=> localStorage.removeItem(id));
-      if(LOCK_AFTER_SUCCESS){
+      fields.forEach(id => localStorage.removeItem(id));
+
+      if (LOCK_AFTER_SUCCESS) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span>✔ Envoyé</span>`;
-        submitBtn.style.backgroundColor="#999";
-        submitBtn.style.cursor="not-allowed";
+        submitBtn.style.backgroundColor = "#999";
+        submitBtn.style.cursor = "not-allowed";
+      } else {
+        startCooldown();
       }
+    } else {
+      showMessage(`Erreur lors de l'envoi (${res.status}). ${text}`, "err");
+      startCooldown();
     }
-
-  } catch(err){
+  } catch (err) {
     console.error(err);
-    showMessage("Erreur réseau ou serveur. Vérifiez la console.","err");
+    showMessage("Erreur réseau. Vérifiez votre connexion.", "err");
+    startCooldown();
   } finally {
+    isSubmitting = false;
     setLoading(false);
   }
 });
 </script>
 </body>
 </html>
+
 
 
 
