@@ -238,116 +238,87 @@ button[disabled]{opacity:.65;cursor:not-allowed;}
 
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwQZAC1BrnLyndTvt1AlSERvATWI5hYwW4dFZAzfx2O39A8yrKWKRy06Qi5EUSrYf3R4Q/exec";
-const LOCK_AFTER_SUCCESS = true;
-const ANTISPAM_DELAY = 30; // secondes
+const SECRET_TOKEN = "@Retrait_Arlette";    // Token de sécurité
+const LOCK_AFTER_SUCCESS = true;            // true = bouton bloqué après succès
+const COOLDOWN = 5000;                      // ms si LOCK_AFTER_SUCCESS=false
 
 const form = document.getElementById("invitationForm");
 const submitBtn = document.getElementById("submitBtn");
-const fields = ["prenom","nom","email","participation","nb_personnes"];
+const messageDiv = document.getElementById("message");
+const fields = ["prenom", "nom", "email", "participation", "nb_personnes"];
 
 let isSubmitting = false;
 let cooldownTimer = null;
 
-/* localStorage sauvegarde */
+// 🔒 Ajout automatique du champ honeypot si absent
+if(!document.querySelector('input[name="hp"]')){
+  const hp = document.createElement("input");
+  hp.type = "text";
+  hp.name = "hp";
+  hp.id = "hp";
+  hp.autocomplete = "off";
+  hp.tabIndex = -1;
+  hp.style.position = "absolute";
+  hp.style.left = "-9999px";
+  hp.style.opacity = "0";
+  form.appendChild(hp);
+}
+
+// 💾 Sauvegarde automatique des champs
 fields.forEach(id => {
-  const el = document.getElementById(id);
-  if(!el) return;
-  const saved = localStorage.getItem(id);
-  if(saved) el.value = saved;
-  el.addEventListener("input", e => localStorage.setItem(id, e.target.value));
+  const input = document.getElementById(id);
+  if(input){
+    input.value = localStorage.getItem(id) || "";
+    input.addEventListener("input", () => localStorage.setItem(id, input.value));
+  }
 });
 
-/* résultat et loader */
-let result = document.getElementById("result");
-if(!result){
-  result = document.createElement("p");
-  result.id = "result";
-  result.setAttribute("role","status");
-  result.setAttribute("aria-live","polite");
-  result.style.textAlign = "center";
-  result.style.fontWeight = "600";
-  form.appendChild(result);
-}
-let loader = document.getElementById("loader");
-if(!loader){
-  loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.display = "none";
-  loader.style.textAlign = "center";
-  loader.style.marginTop = "8px";
-  loader.innerHTML = "";
-  form.appendChild(loader);
-}
-
-/* Confetti */
-function launchConfetti(count = 40){
-  for(let i = 0; i < count; i++){
-    const c = document.createElement("div");
-    c.className = "confetti";
-    const hue = Math.floor(Math.random()*360);
-    const size = 6 + Math.random()*10;
-    const left = Math.random()*100;
-    const dx = (Math.random()*200-100) + "px";
-    const dur = (2 + Math.random()*2).toFixed(2) + "s";
-    c.style.backgroundColor = `hsl(${hue} 90% 55%)`;
-    c.style.left = left + "vw";
-    c.style.width = c.style.height = size + "px";
-    c.style.setProperty("--dx", dx);
-    c.style.animationDuration = dur;
-    document.body.appendChild(c);
-    setTimeout(()=> c.remove(), parseFloat(dur) * 1000);
+// 🎉 Animation confettis
+function launchConfetti(){
+  if(window.confetti){
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
   }
 }
 
-function showMessage(msg, cls){
-  result.textContent = msg;
-  result.className = cls || "";
+// ✅ Message utilisateur
+function showMessage(msg, type){
+  if(!messageDiv) return;
+  messageDiv.innerText = msg;
+  messageDiv.className = type ? "msg " + type : "msg";
 }
-function setLoading(loading){
-  if(loading){
-    loader.style.display = "block";
+
+// ⏳ Loading
+function setLoading(state){
+  if(!submitBtn) return;
+  if(state){
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span>Envoi…</span>`;
+    submitBtn.innerHTML = `<span class="loader"></span> Envoi...`;
   } else {
-    loader.style.display = "none";
     submitBtn.disabled = false;
     submitBtn.innerHTML = `<span>Envoyer</span>`;
   }
 }
 
-/* cooldown */
-function updateCooldown(){
-  clearInterval(cooldownTimer);
-  const until = parseInt(localStorage.getItem("cooldown_until") || "0", 10);
-  if(!until || until <= Date.now()){
-    localStorage.removeItem("cooldown_until");
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = `<span>Envoyer</span>`;
-    return;
-  }
+// ⏲️ Cooldown
+function startCooldown(){
+  if(!submitBtn) return;
+  if(LOCK_AFTER_SUCCESS) return;
   submitBtn.disabled = true;
-  function tick(){
-    const rem = Math.ceil((until - Date.now())/1000);
-    if(rem > 0){
-      submitBtn.innerHTML = `⏳ Attendez ${rem}s`;
+  let remaining = COOLDOWN/1000;
+  submitBtn.innerText = `Attendez ${remaining}s`;
+  cooldownTimer = setInterval(()=>{
+    remaining--;
+    if(remaining > 0){
+      submitBtn.innerText = `Attendez ${remaining}s`;
     } else {
       clearInterval(cooldownTimer);
-      localStorage.removeItem("cooldown_until");
       submitBtn.disabled = false;
-      submitBtn.innerHTML = `<span>Envoyer</span>`;
+      submitBtn.innerText = "Envoyer";
     }
-  }
-  tick();
-  cooldownTimer = setInterval(tick, 1000);
+  },1000);
 }
-function startCooldown(){
-  const until = Date.now() + ANTISPAM_DELAY * 1000;
-  localStorage.setItem("cooldown_until", until.toString());
-  updateCooldown();
-}
-updateCooldown();
 
-/* submit */
+// 📤 Envoi formulaire
 form.addEventListener("submit", async e => {
   e.preventDefault();
   if(isSubmitting) return;
@@ -356,6 +327,8 @@ form.addEventListener("submit", async e => {
   const prenom = (document.getElementById("prenom")?.value || "").trim();
   const nom = (document.getElementById("nom")?.value || "").trim();
   const email = (document.getElementById("email")?.value || "").trim();
+
+  // Vérification email
   if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     showMessage("Adresse e-mail invalide.","err");
     return;
@@ -365,21 +338,43 @@ form.addEventListener("submit", async e => {
   setLoading(true);
   showMessage("", "");
 
+  // Paramètres
   const params = new URLSearchParams(new FormData(form));
+  params.append("token", SECRET_TOKEN);
+  if(!params.has("hp")) params.append("hp", "");
+
   try{
     const res = await fetch(SHEET_URL, { method: "POST", body: params });
-    const text = await res.text();
-    if(res.ok){
-      if(/^OK/i.test(text)){
-        showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé ! 🎊`, "ok");
-        launchConfetti();
-      } else if(/^UPDATED/i.test(text)){
-        showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`, "ok");
-      } else if(/^NO_CHANGE/i.test(text)){
-        showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`, "warn");
-      } else {
-        showMessage(`Réponse serveur : ${text}`, "warn");
-      }
+    let json;
+    try {
+      json = await res.json();
+    } catch {
+      const txt = await res.text();
+      showMessage(`Réponse inattendue du serveur : ${txt}`, "warn");
+      return;
+    }
+
+    // 🔔 Gestion des réponses
+    if(json.status === "OK"){
+      showMessage(`Merci ${prenom} ${nom}, votre enregistrement est confirmé 🎊`, "ok");
+      launchConfetti();
+    } else if(json.status === "UPDATED"){
+      showMessage(`Vos informations ont été mises à jour, ${prenom} ${nom}.`, "ok");
+      launchConfetti();
+    } else if(json.status === "NO_CHANGE"){
+      showMessage(`Aucune modification détectée pour ${prenom} ${nom}.`, "warn");
+    } else if(json.status === "UNAUTHORIZED"){
+      showMessage(`Requête non autorisée (token incorrect).`, "err");
+    } else if(json.status === "MISSING_FIELDS"){
+      showMessage(`Veuillez compléter tous les champs requis.`, "err");
+    } else if(json.status === "SPAM_DETECTED"){
+      showMessage(`Spam détecté.`, "err");
+    } else {
+      showMessage(`Réponse serveur : ${json.status || JSON.stringify(json)}`, "warn");
+    }
+
+    // Reset + localStorage
+    if(json.status === "OK" || json.status === "UPDATED"){
       form.reset();
       fields.forEach(id => localStorage.removeItem(id));
       if(LOCK_AFTER_SUCCESS){
@@ -390,9 +385,6 @@ form.addEventListener("submit", async e => {
       } else {
         startCooldown();
       }
-    } else {
-      showMessage(`Erreur lors de l'envoi (${res.status}). ${text}`, "err");
-      startCooldown();
     }
   } catch(err){
     console.error(err);
@@ -406,3 +398,4 @@ form.addEventListener("submit", async e => {
 </script>
 </body>
 </html>
+
